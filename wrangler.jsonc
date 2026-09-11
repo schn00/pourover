@@ -12,7 +12,7 @@
 
   // SETUP.md step 1: paste the ID of the KV namespace you created.
   "kv_namespaces": [
-    { "binding": "BREWLOG", "id": "PASTE_YOUR_KV_NAMESPACE_ID_HERE" }
+    { "binding": "BREWLOG", "id": "a042fd6d371649db84a4f0f431dd152d" }
   ],
 
   // SETUP.md step 5: both values come from the Cloudflare Access setup.
