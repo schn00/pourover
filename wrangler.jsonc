@@ -17,7 +17,7 @@
 
   // SETUP.md step 5: both values come from the Cloudflare Access setup.
   "vars": {
-    "TEAM_DOMAIN": "https://YOUR-TEAM-NAME.cloudflareaccess.com",
-    "POLICY_AUD": "PASTE_YOUR_ACCESS_AUD_TAG_HERE"
+    "TEAM_DOMAIN": "https://restless-heart-d351.cloudflareaccess.com",
+    "POLICY_AUD": "8e5a154e8c71a5d962673ab9c425d9af8cd2917a0700d1836109e158ffce0c45"
   }
 }
