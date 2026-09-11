@@ -1,0 +1,23 @@
+{
+  // The name must match the Worker name in the Cloudflare dashboard.
+  "name": "pourover",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-08-01",
+  "workers_dev": true,
+
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
+
+  // SETUP.md step 1: paste the ID of the KV namespace you created.
+  "kv_namespaces": [
+    { "binding": "BREWLOG", "id": "PASTE_YOUR_KV_NAMESPACE_ID_HERE" }
+  ],
+
+  // SETUP.md step 5: both values come from the Cloudflare Access setup.
+  "vars": {
+    "TEAM_DOMAIN": "https://YOUR-TEAM-NAME.cloudflareaccess.com",
+    "POLICY_AUD": "PASTE_YOUR_ACCESS_AUD_TAG_HERE"
+  }
+}
