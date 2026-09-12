@@ -25,8 +25,8 @@
   --band-bg:#14161F;--band-ink:#FBFBFC;--band-dim:#B8BCCB;
   --lime:#C6F432;--frozen-bg:#DDF4FA;--frozen-text:#0B6F86;--good:#1F9D57;--warn:#C0442A;
   --font:"Archivo",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  --t-title:16px;--t-name:16.5px;--t-num:17px;--t-sub:13px;--t-detail:13px;--t-lab:10.5px;--t-unit:10.5px;
-  --h-num:32px;--h-sub:27px;--h-det:31px;
+  --t-title:17px;--t-name:17.5px;--t-num:19px;--t-sub:14px;--t-detail:14px;--t-lab:11.5px;--t-unit:11px;
+  --h-num:36px;--h-sub:30px;--h-det:34px;
   color-scheme:light;
 }
 [data-theme="dark"]{
@@ -76,8 +76,8 @@ p{margin:0}
 .bandright{display:flex;align-items:baseline;gap:12px;flex:none}
 .bandmini{display:flex;align-items:baseline;gap:8px;padding:0 16px;max-height:0;overflow:hidden;opacity:0;
   transition:max-height .18s ease,opacity .12s ease,padding .18s ease}
-.mininame{font-size:13.5px;font-weight:600;white-space:nowrap;flex:none;max-width:44%;overflow:hidden;text-overflow:ellipsis}
-.minifacts{font-size:11.5px;font-stretch:87%;color:var(--band-dim);white-space:nowrap;overflow:hidden;
+.mininame{font-size:14px;font-weight:600;white-space:nowrap;flex:none;max-width:44%;overflow:hidden;text-overflow:ellipsis}
+.minifacts{font-size:12px;font-stretch:87%;color:var(--band-dim);white-space:nowrap;overflow:hidden;
   text-overflow:ellipsis;flex:1 1 auto;min-width:0}
 .minidate{font-size:11.5px;font-stretch:87%;font-weight:500;color:var(--accent-on-ink);flex:none}
 #chrome.scrolled .band[data-collapse] .bandfull{max-height:0;opacity:0;padding-top:0;padding-bottom:0}
@@ -161,10 +161,10 @@ select::-ms-expand{display:none}
 .bagpick:hover .chev{color:var(--accent)}
 .beanmeta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:7px;font-size:11.5px;
   font-stretch:87%;color:var(--faint)}
-.chip{display:inline-flex;align-items:baseline;gap:5px;font-size:11px;font-stretch:87%;font-weight:600;
+.chip{display:inline-flex;align-items:baseline;gap:5px;font-size:11.5px;font-stretch:87%;font-weight:600;
   padding:2px 7px;border-radius:3px;background:var(--accent-soft);color:var(--accent-text)}
 .chip.frozen{background:var(--frozen-bg);color:var(--frozen-text)}
-.beanline{margin-top:5px;font-size:11.5px;font-stretch:87%;color:var(--muted);overflow-wrap:anywhere}
+.beanline{margin-top:5px;font-size:12px;font-stretch:87%;color:var(--muted);overflow-wrap:anywhere}
 /* The roaster's own words: italic behind a plain rule, no hue of its own. */
 .beannotes{margin-top:7px;padding-left:8px;font-size:var(--t-detail);font-style:italic;color:var(--ink);
   border-left:2px solid var(--ghost)}
@@ -174,8 +174,11 @@ select::-ms-expand{display:none}
 /* taste */
 .tastehead{display:flex;align-items:baseline;gap:10px;font-size:var(--t-lab);font-stretch:87%;color:var(--faint);
   margin-bottom:8px;letter-spacing:.02em}
-.tastegrid{display:grid;grid-template-columns:120px minmax(0,1fr);gap:14px;align-items:center}
-@media (min-width:560px){.tastegrid{grid-template-columns:170px minmax(0,1fr)}}
+/* The compass is the only control here that needs precision, so it gets the room. */
+.tastegrid{display:block}
+.tastegrid>.compass{width:100%;max-width:260px;margin:0 auto 14px}
+@media (min-width:560px){.tastegrid{display:grid;grid-template-columns:260px minmax(0,1fr);gap:18px;align-items:center}
+  .tastegrid>.compass{margin:0}}
 .compass{position:relative;aspect-ratio:1;border:1px solid var(--line);border-radius:2px;overflow:hidden;
   touch-action:none;cursor:crosshair;user-select:none;
   background:
@@ -207,11 +210,11 @@ select::-ms-expand{display:none}
 .ratelabel b{font-size:var(--t-num);font-stretch:112%;font-weight:500;color:var(--ink);margin-left:5px}
 .ratelabel b.off{color:var(--ghost)}
 .rate{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px;margin-top:6px}
-.rate button{all:unset;height:26px;border-radius:2px;background:var(--hair);cursor:pointer;text-align:center;
-  font-size:9.5px;font-stretch:87%;color:var(--faint);line-height:26px}
+.rate button{all:unset;height:30px;border-radius:2px;background:var(--hair);cursor:pointer;text-align:center;
+  font-size:10.5px;font-stretch:87%;color:var(--faint);line-height:30px}
 .rate button:hover{background:var(--accent-soft);color:var(--accent-text)}
 .rate button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:600}
-.rate-ends{display:flex;justify-content:space-between;margin-top:3px;font-size:10px;font-stretch:87%;color:var(--faint)}
+.rate-ends{display:flex;justify-content:space-between;margin-top:4px;font-size:10.5px;font-stretch:87%;color:var(--faint)}
 .tastesaid{margin-top:7px;font-size:var(--t-detail);font-stretch:87%;color:var(--muted)}
 .tastesaid button{all:unset;cursor:pointer;color:var(--accent);margin-left:8px;border-bottom:1px solid currentColor;
   font-size:12px;font-stretch:87%;font-weight:600}
@@ -223,14 +226,15 @@ select::-ms-expand{display:none}
 /* actions */
 .saverow{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
-.btn{all:unset;box-sizing:border-box;cursor:pointer;text-align:center;padding:11px 14px;border-radius:2px;
-  border:1px solid var(--line);color:var(--muted);font-size:13px;font-weight:500;display:inline-block}
-.btn:hover{color:var(--ink);border-color:var(--faint)}
+.btn{all:unset;box-sizing:border-box;cursor:pointer;text-align:center;padding:12px 15px;border-radius:2px;
+  border:1px solid var(--accent);color:var(--accent);font-size:13.5px;font-weight:600;display:inline-block}
+.btn:hover{background:var(--accent-soft);color:var(--accent-text)}
 .btn.primary{flex:1 1 auto;background:var(--ink);border-color:var(--ink);color:var(--sheet);font-weight:600;font-stretch:112%}
 .btn.primary:hover{background:var(--accent);border-color:var(--accent);color:#fff}
-.btn.danger{color:var(--warn)}
-.btn.sm{padding:7px 10px;font-size:12px}
-.linkbtn{all:unset;cursor:pointer;font-size:12.5px;font-stretch:87%;font-weight:600;color:var(--accent);
+.btn.danger{color:var(--warn);border-color:var(--warn)}
+.btn.danger:hover{background:color-mix(in srgb,var(--warn) 12%,transparent);color:var(--warn)}
+.btn.sm{padding:8px 11px;font-size:12.5px}
+.linkbtn{all:unset;cursor:pointer;font-size:13px;font-stretch:87%;font-weight:600;color:var(--accent);
   border-bottom:1px solid currentColor;display:inline-block}
 .linkbtn:hover{color:var(--accent-text)}
 .acts{display:flex;flex-wrap:wrap;gap:16px;margin-top:11px}
@@ -257,11 +261,11 @@ select::-ms-expand{display:none}
 .item.plain::before{display:none}
 .item.plain>*{padding-left:0}
 .iname{display:block;font-size:var(--t-name);font-weight:600;letter-spacing:-0.01em;overflow-wrap:anywhere}
-.iby{display:block;font-size:11.5px;font-stretch:87%;color:var(--faint)}
+.iby{display:block;font-size:12px;font-stretch:87%;color:var(--faint)}
 
 /* recipe specs on one line, pours one per line */
 .rxspecs{display:flex;gap:0 6px;margin-top:9px}
-.rxspecs span{flex:1 1 0;min-width:0;font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rxspecs span{flex:1 1 0;min-width:0;font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rxspecs i{display:block;font-style:normal;font-size:9.5px;font-stretch:87%;color:var(--faint);font-weight:400;letter-spacing:.01em}
 .pours{margin-top:10px;border-top:1px solid var(--hair)}
 .prow{display:flex;align-items:baseline;gap:8px;padding:5px 0;border-bottom:1px solid var(--hair)}
@@ -269,11 +273,11 @@ select::-ms-expand{display:none}
 .pn{flex:none;width:15px;height:15px;border-radius:50%;background:var(--accent-soft);color:var(--accent-text);
   font-size:9.5px;font-weight:700;display:inline-grid;place-items:center;align-self:center}
 .pn.none{background:none;color:var(--ghost)}
-.pt{flex:none;width:34px;font-size:12px;font-weight:600}
-.pnote{flex:1 1 auto;min-width:0;font-size:11px;font-stretch:87%;color:var(--muted);white-space:nowrap;
+.pt{flex:none;width:36px;font-size:12.5px;font-weight:600}
+.pnote{flex:1 1 auto;min-width:0;font-size:11.5px;font-stretch:87%;color:var(--muted);white-space:nowrap;
   overflow:hidden;text-overflow:ellipsis}
 .pnote.step{color:var(--accent-text);font-style:italic}
-.pg{flex:none;font-size:13.5px;font-weight:500;font-stretch:112%;letter-spacing:-0.01em}
+.pg{flex:none;font-size:14.5px;font-weight:500;font-stretch:112%;letter-spacing:-0.01em}
 .pg.none{color:var(--ghost);font-size:12px}
 
 /* ---------- History ---------- */
@@ -286,20 +290,20 @@ select::-ms-expand{display:none}
 .hrate.none{color:var(--ghost)}
 .hbody{display:block;min-width:0;flex:1 1 auto}
 .h1{display:block;font-size:var(--t-detail);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.h2{display:block;font-size:11.5px;font-stretch:87%;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hdate{font-size:11px;font-stretch:87%;color:var(--faint);flex:none}
+.h2{display:block;font-size:12px;font-stretch:87%;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hdate{font-size:11.5px;font-stretch:87%;color:var(--faint);flex:none}
 
 /* ---------- Insights ---------- */
 .metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .stat{display:block;font-size:var(--t-num);font-weight:500;font-stretch:112%;letter-spacing:-0.01em;overflow-wrap:anywhere}
-.stat.name{font-size:12.5px;font-stretch:100%;font-weight:600;line-height:1.25}
+.stat.name{font-size:13px;font-stretch:100%;font-weight:600;line-height:1.25}
 .stat i{display:block;font-style:normal;font-size:10px;font-stretch:87%;color:var(--faint);font-weight:400}
 .factor{margin-bottom:12px}
 .factor:last-of-type{margin-bottom:0}
 .fh{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .fh b{font-size:var(--t-detail);font-weight:600}
 .fh span{font-size:10.5px;font-stretch:87%;color:var(--faint);white-space:nowrap}
-.factor p{margin:2px 0 5px;font-size:12px;font-stretch:87%;color:var(--muted)}
+.factor p{margin:2px 0 5px;font-size:12.5px;font-stretch:87%;color:var(--muted)}
 .bar{height:3px;background:var(--hair);border-radius:2px;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--accent)}
 .foot{margin-top:10px;font-size:11px;font-stretch:87%;color:var(--faint)}
