@@ -1,4 +1,6 @@
 {
+  "id": "/",
+  "lang": "en",
   "name": "Dialed",
   "short_name": "Dialed",
   "description": "Pourover brew log — dial in your coffee.",
@@ -6,7 +8,7 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#F4F5F8",
+  "background_color": "#FBFBFC",
   "theme_color": "#F4F5F8",
   "icons": [
     { "src": "/icon.svg", "type": "image/svg+xml", "sizes": "any" },
