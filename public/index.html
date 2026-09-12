@@ -441,16 +441,64 @@ function advise(b) {
 // =====================================================================
 let syncTimer = null, syncing = false, syncAgain = false, healTries = 0;
 function scheduleSync(ms = 1200) { clearTimeout(syncTimer); syncTimer = setTimeout(sync, ms); }
-// Clearing the Access session and coming back is what actually re-triggers the
-// login screen; reloading in place does nothing while the old cookie is valid.
-function forceSignIn() { location.href = "/cdn-cgi/access/logout?returnTo=" + encodeURIComponent(location.href); }
+// Google Sign-In. The ID token goes to /api/session once; after that the
+// session cookie does the work, so this sheet only appears when signed out.
+let gisReady = null;
+function loadGIS() {
+  return (gisReady ||= new Promise((res, rej) => {
+    const el = document.createElement("script");
+    el.src = "https://accounts.google.com/gsi/client";
+    el.async = true;
+    el.onload = res;
+    el.onerror = () => rej(new Error("Couldn't reach Google. Check your connection or any content blocker."));
+    document.head.appendChild(el);
+  }));
+}
+function openSignIn() {
+  openSheet(`
+    <div class="sheet-head"><h1>Sign in</h1><button class="iconbtn" data-close type="button" aria-label="Close">\u2715</button></div>
+    <p class="muted">Sign in with Google to keep your brews on every device. Anything logged on this device already is kept and uploaded once you're in.</p>
+    <div id="gbtn" style="margin:16px 0;display:flex;justify-content:center;min-height:44px"></div>
+    <p class="muted small" id="gerr" role="alert"></p>
+  `, async (root) => {
+    const fail = (m) => { const e = $("#gerr", root); if (e) e.textContent = m; };
+    try {
+      const cfg = await (await fetch("/api/config", { cache: "no-store" })).json();
+      if (!cfg.clientId) return fail("Sign-in isn't set up on the server yet.");
+      await loadGIS();
+      google.accounts.id.initialize({
+        client_id: cfg.clientId,
+        callback: async (resp) => {
+          try {
+            const r = await fetch("/api/session", {
+              method: "POST", headers: { "content-type": "application/json" },
+              body: JSON.stringify({ credential: resp.credential }), credentials: "same-origin",
+            });
+            if (!r.ok) return fail(((await r.json().catch(() => ({}))).error) || "That didn't work. Try again.");
+            closeSheet();
+            S.verified = false; // makes the next sync adopt the account and merge local brews
+            healTries = 0;
+            sync();
+          } catch { fail("Couldn't reach the server. Try again."); }
+        },
+      });
+      google.accounts.id.renderButton($("#gbtn", root), { theme: "outline", size: "large", text: "signin_with" });
+    } catch (e) { fail(e.message || "Couldn't load Google sign-in."); }
+  });
+}
+async function signOut() {
+  try { await fetch("/api/signout", { method: "POST", credentials: "same-origin" }); } catch {}
+  try { if (typeof google !== "undefined") google.accounts.id.disableAutoSelect(); } catch {}
+  LS.remove("brewlog:lastEmail"); // brews stay cached under that email for next sign-in
+  location.reload();
+}
 function setStatus(s) {
   S.status = s;
   const el = $("#status");
   el.dataset.s = s;
   const label = {
     idle: "Loading", saving: "Saving", synced: "Synced", offline: "Offline, saved on this device",
-    signin: "Sign in again", error: "Sync error", local: LS.ok ? "Saved on this device only" : "Preview, not saved",
+    signin: "Sign in to sync", error: "Sync error", local: LS.ok ? "Saved on this device only" : "Preview, not saved",
   }[s] || s;
   el.setAttribute("aria-label", label);
   el.title = label;
@@ -1161,11 +1209,11 @@ function openSettings() {
   const st = settings();
   const theme = LS.get("brewlog:theme") || "auto";
   const seg = (name, opts, cur) => `<div class="seg" data-seg="${name}">${opts.map(([v, l]) => `<button type="button" data-v="${v}" aria-pressed="${String(v) === String(cur)}">${l}</button>`).join("")}</div>`;
-  const statusText = { synced: "Everything is saved to your account.", saving: "Saving changes.", offline: "You're offline. Changes are saved on this device and upload when you reconnect.", signin: "Your sign-in expired. Changes are saved on this device.", error: "The server couldn't save. Changes are kept on this device.", local: "No sync at this address, so this device is on its own. Changes are saved here and can be exported." }[S.status] || "";
+  const statusText = { synced: "Everything is saved to your account.", saving: "Saving changes.", offline: "You're offline. Changes are saved on this device and upload when you reconnect.", signin: "Not signed in, so this device is on its own. Sign in to sync everywhere.", error: "The server couldn't save. Changes are kept on this device.", local: "No sync at this address, so this device is on its own. Changes are saved here and can be exported." }[S.status] || "";
   openSheet(`
     <div class="sheet-head"><h1>Settings</h1><button class="iconbtn" data-close type="button" aria-label="Close">✕</button></div>
     <div class="setrow"><div><div style="font-weight:600">${esc(S.email || "Not signed in")}</div><div class="muted small">${esc(statusText)}</div></div>
-      ${S.status === "signin" ? `<button class="btn sm" id="reauth" type="button">Sign in</button>` : `<button class="btn sm" id="syncNow" type="button">${S.status === "local" ? "Check again" : "Sync now"}</button>`}</div>
+      ${S.status === "signin" ? `<button class="btn sm primary" id="reauth" type="button">Sign in</button>` : `<button class="btn sm" id="syncNow" type="button">${S.status === "local" ? "Check again" : "Sync now"}</button>`}</div>
     <div class="setrow"><span>Temperature</span>${seg("tempUnit", [["F", "°F"], ["C", "°C"]], st.tempUnit)}</div>
     <div class="setrow"><span>On my grinder, a lower number is</span>${seg("finerIsLower", [["true", "Finer"], ["false", "Coarser"]], st.finerIsLower)}</div>
     <div class="setrow"><span>Theme</span>${seg("theme", [["auto", "Auto"], ["light", "Light"], ["dark", "Dark"]], theme)}</div>
@@ -1173,7 +1221,7 @@ function openSettings() {
       <div style="display:flex;gap:6px"><button class="btn sm" id="expX" type="button">Excel</button><button class="btn sm" id="expC" type="button">CSV</button></div></div>
     <div class="setrow"><div><div>Import</div><div class="muted small">Excel or CSV. Re-importing an export updates brews instead of duplicating them.</div></div>
       <label class="btn sm" style="flex:none">Choose file<input type="file" id="impF" accept=".xlsx,.xls,.csv" class="sr"></label></div>
-    ${S.email || S.status === "signin" ? `<div class="setrow"><div><div>Sign out</div><div class="muted small">Ends the Access session on this device. Brews already synced stay in your account.</div></div><a class="btn sm" style="flex:none" href="/cdn-cgi/access/logout">Sign out</a></div>` : ""}
+    ${S.email ? `<div class="setrow"><div><div>Sign out</div><div class="muted small">Signs out on this device. Your brews stay in your account.</div></div><button class="btn sm" style="flex:none" id="signOut" type="button">Sign out</button></div>` : ""}
   `, (root) => {
     $$("[data-seg]", root).forEach((g) => g.addEventListener("click", (e) => {
       const b = e.target.closest("button"); if (!b) return;
@@ -1193,14 +1241,15 @@ function openSettings() {
       $$("button", g).forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
     }));
     const sn = $("#syncNow", root); if (sn) sn.onclick = () => { sync(); closeSheet(); };
-    const ra = $("#reauth", root); if (ra) ra.onclick = forceSignIn;
+    const ra = $("#reauth", root); if (ra) ra.onclick = openSignIn;
+    const so = $("#signOut", root); if (so) so.onclick = () => { if (armed(so, "Sign out?")) signOut(); };
     $("#expX", root).onclick = () => exportFile("xlsx");
     $("#expC", root).onclick = () => exportFile("csv");
     $("#impF", root).onchange = (e) => { const f = e.target.files[0]; if (f) importFile(f); };
   });
 }
 $("#openSettings").onclick = openSettings;
-$("#status").onclick = () => (S.status === "signin" ? forceSignIn() : sync());
+$("#status").onclick = () => (S.status === "signin" ? openSignIn() : sync());
 
 // =====================================================================
 // Export / import (column names match the original Coffee.xlsx)
