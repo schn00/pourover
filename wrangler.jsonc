@@ -16,8 +16,7 @@
   ],
 
   // SETUP.md step 5: both values come from the Cloudflare Access setup.
-  "vars": {
-    "TEAM_DOMAIN": "https://coresc.cloudflareaccess.com",
-    "POLICY_AUD": "8e5a154e8c71a5d962673ab9c425d9af8cd2917a0700d1836109e158ffce0c45"
+   "vars": {
+    "GOOGLE_CLIENT_ID": "373149418721-fr7bjf3eii5qoodjcmf7pktjvgnm8433.apps.googleusercontent.com"
   }
 }
