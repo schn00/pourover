@@ -9,7 +9,9 @@
 <meta name="theme-color" content="#0C0E14" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..700&display=swap" rel="stylesheet">
@@ -46,7 +48,10 @@ p{margin:0}
 .brand{font-weight:650;font-size:17px;letter-spacing:-0.01em;margin-right:auto;font-variation-settings:"opsz" 30}
 .brand{display:flex;align-items:center;gap:8px}
 .brand .logo{width:26px;height:26px;flex:none}
-.status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);background:none;border:0;padding:4px 6px;border-radius:6px;cursor:pointer}
+.status{display:grid;place-items:center;width:36px;height:36px;color:var(--muted);background:none;border:0;padding:0;border-radius:8px;cursor:pointer}
+.status:hover{background:var(--surface)}
+.status svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.status[data-s="signin"],.status[data-s="offline"],.status[data-s="error"]{color:var(--warn)}
 .status i{width:7px;height:7px;border-radius:50%;background:var(--faint)}
 .status[data-s="synced"] i{background:var(--good)}
 .status[data-s="saving"] i{background:var(--accent)}
@@ -197,8 +202,8 @@ dialog.sheet::backdrop{background:rgba(10,8,6,.45)}
 </head>
 <body>
 <header class="top">
-  <span class="brand"><svg class="logo" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="116" fill="#2F5BFF"/><rect x="138" y="118" width="236" height="28" rx="14" fill="#FFFFFF"/><path d="M160 146 H352 L290 262 H222 Z" fill="#FFFFFF"/><path d="M146 330 A124 124 0 0 0 366 330" fill="none" stroke="#FFFFFF" stroke-opacity=".3" stroke-width="26" stroke-linecap="round"/><path d="M146 330 A124 124 0 0 0 330 404" fill="none" stroke="#C6F432" stroke-width="26" stroke-linecap="round"/><path d="M256 288 C256 288 240 309 240 320 A16 16 0 0 0 272 320 C272 309 256 288 256 288Z" fill="#C6F432"/></svg>Dialed</span>
-  <button class="status" id="status" data-s="idle" type="button" title="Sync now"><i></i><span>Loading</span></button>
+  <span class="brand"><svg class="logo" viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="116" fill="#2F5BFF"/><rect x="138" y="118" width="236" height="28" rx="14" fill="#FFFFFF"/><path d="M160 146 H352 L290 262 H222 Z" fill="#FFFFFF"/><path d="M146 330 A124 124 0 0 0 366 330" fill="none" stroke="#FFFFFF" stroke-opacity=".3" stroke-width="26" stroke-linecap="round"/><path d="M146 330 A124 124 0 0 0 277.54 394.88" fill="none" stroke="#C6F432" stroke-width="26" stroke-linecap="round"/><path d="M256 288 C256 288 240 309 240 320 A16 16 0 0 0 272 320 C272 309 256 288 256 288Z" fill="#C6F432"/></svg>Dialed</span>
+  <button class="status" id="status" data-s="idle" type="button" aria-label="Loading"><i></i></button>
   <button class="iconbtn" id="openSettings" type="button" aria-label="Settings">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
   </button>
@@ -254,6 +259,19 @@ function parseTime(v) {
   const n = num(v);
   if (n == null) return null;
   return n < 15 ? Math.round(n * 60) : Math.round(n); // "3.5" = minutes, "190" = seconds
+}
+// Right-anchored m:ss mask so the numeric keypad alone can type a time:
+// "3" -> 0:03, "31" -> 0:31, "310" -> 3:10, "1045" -> 10:45
+function maskTime(v) {
+  const d = String(v ?? "").replace(/\D/g, "").slice(-4);
+  if (!d) return "";
+  if (d.length <= 2) return `0:${d.padStart(2, "0")}`;
+  return `${d.slice(0, -2)}:${d.slice(-2)}`;
+}
+// Roll overflowing seconds up into minutes: "4:75" -> 5:15
+function normTime(v) {
+  const s = parseTime(maskTime(v));
+  return s == null ? "" : mmss(s);
 }
 
 // =====================================================================
@@ -423,14 +441,26 @@ function advise(b) {
 // =====================================================================
 let syncTimer = null, syncing = false, syncAgain = false, healTries = 0;
 function scheduleSync(ms = 1200) { clearTimeout(syncTimer); syncTimer = setTimeout(sync, ms); }
+// Clearing the Access session and coming back is what actually re-triggers the
+// login screen; reloading in place does nothing while the old cookie is valid.
+function forceSignIn() { location.href = "/cdn-cgi/access/logout?returnTo=" + encodeURIComponent(location.href); }
 function setStatus(s) {
   S.status = s;
   const el = $("#status");
   el.dataset.s = s;
-  el.querySelector("span").textContent = {
-    idle: "Loading", saving: "Saving", synced: "Synced", offline: "Offline, saved here",
-    signin: "Sign in again", error: "Sync error", local: LS.ok ? "Saved on this device" : "Preview, not saved",
+  const label = {
+    idle: "Loading", saving: "Saving", synced: "Synced", offline: "Offline, saved on this device",
+    signin: "Sign in again", error: "Sync error", local: LS.ok ? "Saved on this device only" : "Preview, not saved",
   }[s] || s;
+  el.setAttribute("aria-label", label);
+  el.title = label;
+  // A coloured dot for the quiet states; a real icon when it wants attention.
+  const svg = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+  el.innerHTML = {
+    signin: svg('<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l-5-5 5-5"/><path d="M15 12H5"/>'),
+    offline: svg('<path d="M3 3l18 18"/><path d="M8.5 8.5A5 5 0 0 0 7 18h9a4 4 0 0 0 1.5-7.7"/><path d="M12 7a5 5 0 0 1 5 4"/>'),
+    error: svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><path d="M12 16h.01"/>'),
+  }[s] || "<i></i>";
 }
 
 async function sync() {
@@ -614,7 +644,7 @@ function viewLog(mode, id) {
       <label class="f"><span>Bloom water (g)</span><input data-k="bloomG" data-r data-t="num" inputmode="decimal" value="${v(d.bloomG)}" placeholder="45"></label>
       <label class="f"><span>Bloom time (s)</span><input data-k="bloomS" data-r data-t="num" inputmode="numeric" value="${v(d.bloomS)}" placeholder="40"></label>
       <label class="f"><span>Pours</span><input data-k="pours" data-r data-t="num" inputmode="numeric" value="${v(d.pours)}" placeholder="3"></label>
-      <label class="f"><span>Brew time</span><input data-k="time" data-r inputmode="numeric" value="${v(mmss(d.timeS))}" placeholder="3:10"></label>
+      <label class="f"><span>Brew time (m:ss)</span><input data-k="time" data-r inputmode="numeric" value="${v(mmss(d.timeS))}" placeholder="3:10" autocomplete="off"></label>
       <label class="f"><span>Method</span><input data-k="method" data-r list="dl-method" value="${v(d.method)}" placeholder="Center pours"></label>
     </div></section>
 
@@ -670,6 +700,15 @@ function viewLog(mode, id) {
     if (["dose", "waterG"].includes(e.target.dataset.k)) updRatio();
     if (e.target.dataset.k === "date") updRoast();
   });
+  const timeIn = field("time");
+  timeIn.addEventListener("input", () => {
+    const masked = maskTime(timeIn.value);
+    if (masked === timeIn.value) return;
+    timeIn.value = masked;
+    try { timeIn.setSelectionRange(masked.length, masked.length); } catch {} // caret stays at the end
+  });
+  timeIn.addEventListener("blur", () => { timeIn.value = normTime(timeIn.value); });
+
   field("bagId").addEventListener("change", (e) => {
     if (e.target.value === "__new") {
       const prevBag = FORM.d.bagId;
@@ -721,7 +760,7 @@ function viewLog(mode, id) {
       waterType: field("waterType").value.trim(), brewer: field("brewer").value.trim(),
       dose: num(field("dose").value), waterG: num(field("waterG").value),
       bloomG: num(field("bloomG").value), bloomS: num(field("bloomS").value),
-      pours: num(field("pours").value), timeS: parseTime(field("time").value),
+      pours: num(field("pours").value), timeS: parseTime(normTime(field("time").value)),
       method: field("method").value.trim(), rating: FORM.d.rating, taste: FORM.d.taste,
       notes: field("notes").value.trim(),
     };
@@ -1122,11 +1161,11 @@ function openSettings() {
   const st = settings();
   const theme = LS.get("brewlog:theme") || "auto";
   const seg = (name, opts, cur) => `<div class="seg" data-seg="${name}">${opts.map(([v, l]) => `<button type="button" data-v="${v}" aria-pressed="${String(v) === String(cur)}">${l}</button>`).join("")}</div>`;
-  const statusText = { synced: "Everything is saved to your account.", saving: "Saving changes.", offline: "You're offline. Changes are saved on this device and upload when you reconnect.", signin: "Your sign-in expired. Changes are saved on this device.", error: "The server couldn't save. Changes are kept on this device.", local: "Running without an account. Changes are saved on this device only." }[S.status] || "";
+  const statusText = { synced: "Everything is saved to your account.", saving: "Saving changes.", offline: "You're offline. Changes are saved on this device and upload when you reconnect.", signin: "Your sign-in expired. Changes are saved on this device.", error: "The server couldn't save. Changes are kept on this device.", local: "No sync at this address, so this device is on its own. Changes are saved here and can be exported." }[S.status] || "";
   openSheet(`
     <div class="sheet-head"><h1>Settings</h1><button class="iconbtn" data-close type="button" aria-label="Close">✕</button></div>
     <div class="setrow"><div><div style="font-weight:600">${esc(S.email || "Not signed in")}</div><div class="muted small">${esc(statusText)}</div></div>
-      ${S.status === "signin" ? `<button class="btn sm" id="reauth" type="button">Sign in</button>` : `<button class="btn sm" id="syncNow" type="button">Sync now</button>`}</div>
+      ${S.status === "signin" ? `<button class="btn sm" id="reauth" type="button">Sign in</button>` : `<button class="btn sm" id="syncNow" type="button">${S.status === "local" ? "Check again" : "Sync now"}</button>`}</div>
     <div class="setrow"><span>Temperature</span>${seg("tempUnit", [["F", "°F"], ["C", "°C"]], st.tempUnit)}</div>
     <div class="setrow"><span>On my grinder, a lower number is</span>${seg("finerIsLower", [["true", "Finer"], ["false", "Coarser"]], st.finerIsLower)}</div>
     <div class="setrow"><span>Theme</span>${seg("theme", [["auto", "Auto"], ["light", "Light"], ["dark", "Dark"]], theme)}</div>
@@ -1134,7 +1173,7 @@ function openSettings() {
       <div style="display:flex;gap:6px"><button class="btn sm" id="expX" type="button">Excel</button><button class="btn sm" id="expC" type="button">CSV</button></div></div>
     <div class="setrow"><div><div>Import</div><div class="muted small">Excel or CSV. Re-importing an export updates brews instead of duplicating them.</div></div>
       <label class="btn sm" style="flex:none">Choose file<input type="file" id="impF" accept=".xlsx,.xls,.csv" class="sr"></label></div>
-    ${S.email ? `<div class="setrow"><span></span><a class="btn sm" href="/cdn-cgi/access/logout">Sign out</a></div>` : ""}
+    ${S.email || S.status === "signin" ? `<div class="setrow"><div><div>Sign out</div><div class="muted small">Ends the Access session on this device. Brews already synced stay in your account.</div></div><a class="btn sm" style="flex:none" href="/cdn-cgi/access/logout">Sign out</a></div>` : ""}
   `, (root) => {
     $$("[data-seg]", root).forEach((g) => g.addEventListener("click", (e) => {
       const b = e.target.closest("button"); if (!b) return;
@@ -1154,14 +1193,14 @@ function openSettings() {
       $$("button", g).forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
     }));
     const sn = $("#syncNow", root); if (sn) sn.onclick = () => { sync(); closeSheet(); };
-    const ra = $("#reauth", root); if (ra) ra.onclick = () => location.reload();
+    const ra = $("#reauth", root); if (ra) ra.onclick = forceSignIn;
     $("#expX", root).onclick = () => exportFile("xlsx");
     $("#expC", root).onclick = () => exportFile("csv");
     $("#impF", root).onchange = (e) => { const f = e.target.files[0]; if (f) importFile(f); };
   });
 }
 $("#openSettings").onclick = openSettings;
-$("#status").onclick = () => (S.status === "signin" ? location.reload() : sync());
+$("#status").onclick = () => (S.status === "signin" ? forceSignIn() : sync());
 
 // =====================================================================
 // Export / import (column names match the original Coffee.xlsx)
