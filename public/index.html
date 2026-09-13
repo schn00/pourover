@@ -728,7 +728,11 @@ function openSignIn() {
           } catch { fail("Couldn't reach the server. Try again."); }
         },
       });
-      google.accounts.id.renderButton($("#gbtn", root), { theme: "outline", size: "large", text: "signin_with" });
+      // Google's "outline" button is white on a light border, which vanishes on the dark sheet.
+      const dark = document.documentElement.dataset.theme === "dark";
+      google.accounts.id.renderButton($("#gbtn", root), {
+        theme: dark ? "filled_blue" : "outline", size: "large", text: "signin_with", shape: "rectangular",
+      });
     } catch (e) { fail(e.message || "Couldn't load Google sign-in."); }
   });
 }
@@ -1741,25 +1745,76 @@ $("#status").onclick = () => (S.status === "signin" ? openSignIn() : sync());
 // =====================================================================
 // Export / import (column names match the original Coffee.xlsx)
 // =====================================================================
+// Export columns, grouped the way you'd read a brew: when, which bag, how it was ground,
+// water, pour, then how it turned out. Header names are what the importer matches on,
+// so renaming one means adding an alias in importFile's pick() list.
+const frozenOn = (g, date) => (g?.freezes || []).some((f) => f.start <= date && (!f.end || date <= f.end));
+
 const BREW_COLS = [
-  ["Brew ID", (b) => b.id], ["Brew Date", (b) => b.date], ["Bag ID", (b) => b.bagId],
-  ["Roaster", (b, g) => g?.roaster], ["Roast Type", (b, g) => g?.roastType], ["Roast Date", (b, g) => g?.roastDate],
-  ["Days from Roast", (b, g) => (g ? daysOff(g, b.date)?.adjusted : "")], ["Days Frozen", (b, g) => (g ? daysOff(g, b.date)?.frozen : "")],
-  ["Beans", (b, g) => g?.beans], ["Origin", (b, g) => g?.origin], ["Region", (b, g) => g?.region],
-  ["Process", (b, g) => g?.process], ["Variety", (b, g) => g?.variety], ["Notes on bag", (b, g) => g?.notes],
-  ["Grinder", (b) => b.grinder], ["Grind Setting", (b) => b.grind], ["Temperature (°F)", (b) => b.tempF],
-  ["Type of water", (b) => b.waterType], ["Brewer", (b) => b.brewer], ["Filter", (b) => b.filter],
-  ["Coffee (g)", (b) => b.dose], ["Water (g)", (b) => b.waterG], ["Ratio", (b) => (ratio(b) ? round(ratio(b), 2) : "")],
-  ["Bloom (g)", (b) => b.bloomG], ["Bloom (s)", (b) => b.bloomS], ["Method", (b) => b.method], ["Pours", (b) => b.pours],
-  ["Brew Time", (b) => mmss(b.timeS)], ["Result", (b) => b.rating],
-  ["Sour to Bitter", (b) => b.taste?.x], ["Weak to Strong", (b) => b.taste?.y], ["Tasting notes", (b) => b.notes],
+  ["Brew ID", (b) => b.id],
+  ["Brew Date", (b) => b.date],
+
+  ["Bag ID", (b) => b.bagId],
+  ["Beans", (b, g) => g?.beans],
+  ["Roaster", (b, g) => g?.roaster],
+  ["Roast Type", (b, g) => g?.roastType],
+  ["Roast Date", (b, g) => g?.roastDate],
+  ["Days from Roast", (b, g) => (g ? daysOff(g, b.date)?.adjusted : "")],
+  ["Days Frozen", (b, g) => (g ? daysOff(g, b.date)?.frozen : "")],
+  ["Frozen at Brew", (b, g) => (frozenOn(g, b.date) ? "Yes" : "")],
+  ["Origin", (b, g) => g?.origin],
+  ["Region", (b, g) => g?.region],
+  ["Process", (b, g) => g?.process],
+  ["Variety", (b, g) => g?.variety],
+  ["Producer", (b, g) => g?.producer],
+  ["Elevation (masl)", (b, g) => g?.elevation],
+  ["Decaf", (b, g) => (g?.decaf ? "Yes" : "")],
+  ["Notes on bag", (b, g) => g?.notes],
+
+  ["Grinder", (b) => b.grinder],
+  ["Grind Setting", (b) => b.grind],
+
+  ["Coffee (g)", (b) => b.dose],
+  ["Water (g)", (b) => b.waterG],
+  ["Ratio", (b) => (ratio(b) ? round(ratio(b), 2) : "")],
+  ["Temperature (°F)", (b) => b.tempF],
+  ["Temperature (°C)", (b) => (isNum(b.tempF) ? round(fToC(b.tempF), 1) : "")],
+  ["Type of water", (b) => b.waterType],
+
+  ["Brewer", (b) => b.brewer],
+  ["Filter", (b) => b.filter],
+  ["Bloom (g)", (b) => b.bloomG],
+  ["Bloom (s)", (b) => b.bloomS],
+  ["Pours", (b) => b.pours],
+  ["Brew Time", (b) => mmss(b.timeS)],
+  ["Method", (b) => b.method],
+
+  ["Result", (b) => b.rating],
+  ["Taste", (b) => tasteText(b.taste)],
+  ["Sour to Bitter", (b) => b.taste?.x],
+  ["Weak to Strong", (b) => b.taste?.y],
+  ["Tasting notes", (b) => b.notes],
 ];
 const BAG_COLS = [
-  ["Bag ID", (g) => g.id], ["Roaster", (g) => g.roaster], ["Beans", (g) => g.beans], ["Roast Type", (g) => g.roastType],
-  ["Roast Date", (g) => g.roastDate], ["Origin", (g) => g.origin], ["Region", (g) => g.region],
-  ["Process", (g) => g.process], ["Variety", (g) => g.variety], ["Producer", (g) => g.producer],
-  ["Elevation (masl)", (g) => g.elevation], ["Decaf", (g) => (g.decaf ? "Yes" : "")], ["Notes on bag", (g) => g.notes],
+  ["Bag ID", (g) => g.id],
+  ["Beans", (g) => g.beans],
+  ["Roaster", (g) => g.roaster],
+  ["Roast Type", (g) => g.roastType],
+  ["Roast Date", (g) => g.roastDate],
+  ["Days from Roast", (g) => daysOff(g)?.adjusted ?? ""],
+  ["Days Frozen", (g) => daysOff(g)?.frozen ?? ""],
+  ["Currently Frozen", (g) => (isFrozen(g) ? "Yes" : "")],
+  ["Origin", (g) => g.origin],
+  ["Region", (g) => g.region],
+  ["Process", (g) => g.process],
+  ["Variety", (g) => g.variety],
+  ["Producer", (g) => g.producer],
+  ["Elevation (masl)", (g) => g.elevation],
+  ["Decaf", (g) => (g.decaf ? "Yes" : "")],
+  ["Notes on bag", (g) => g.notes],
   ["Freezer periods", (g) => (g.freezes || []).map((f) => `${f.start} to ${f.end || "still frozen"}`).join("; ")],
+  ["Brews Logged", (g) => brews().filter((b) => b.bagId === g.id).length],
+  ["Average Result", (g) => { const r = brews().filter((b) => b.bagId === g.id && isNum(b.rating)).map((b) => b.rating); return r.length ? round(mean(r), 1) : ""; }],
   ["Finished", (g) => (g.finished ? "Yes" : "")],
 ];
 const brewRows = () => brews().slice().reverse().map((b) => { const g = S.records[b.bagId]; const o = {}; BREW_COLS.forEach(([h, fn]) => (o[h] = fn(b, g) ?? "")); return o; });
@@ -1794,10 +1849,16 @@ async function exportFile(kind) {
   try {
     await loadXLSX();
     const wb = XLSX.utils.book_new();
+    const WIDE = { "Notes on bag": 42, "Tasting notes": 46, "Method": 26, "Taste": 30, "Freezer periods": 34,
+      "Beans": 24, "Roaster": 20, "Brew ID": 14, "Bag ID": 14, "Producer": 22 };
+    const widths = (cols) => cols.map(([h]) => ({ wch: WIDE[h] || Math.max(9, h.length + 2) }));
     const ws1 = XLSX.utils.json_to_sheet(brewRows(), { header: BREW_COLS.map(([h]) => h) });
-    ws1["!cols"] = BREW_COLS.map(([h]) => ({ wch: Math.max(10, h.length + 2) }));
+    ws1["!cols"] = widths(BREW_COLS);
+    ws1["!freeze"] = { xSplit: 2, ySplit: 1 };
+    ws1["!autofilter"] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: brewRows().length, c: BREW_COLS.length - 1 } }) };
     const ws2 = XLSX.utils.json_to_sheet(bagRows(), { header: BAG_COLS.map(([h]) => h) });
-    ws2["!cols"] = BAG_COLS.map(([h]) => ({ wch: Math.max(12, h.length + 2) }));
+    ws2["!cols"] = widths(BAG_COLS);
+    ws2["!freeze"] = { xSplit: 1, ySplit: 1 };
     XLSX.utils.book_append_sheet(wb, ws1, "Brews");
     XLSX.utils.book_append_sheet(wb, ws2, "Bags");
     XLSX.writeFile(wb, `dialed-log-${stamp}.xlsx`);
@@ -1859,7 +1920,8 @@ async function importFile(file) {
       }
       let tempF = num(pick(r, "temperaturef", "temperature", "temp", "tempf"));
       const tempC = num(pick(r, "temperaturec", "tempc"));
-      if (tempC != null) tempF = cToF(tempC);
+      // Our own export carries both columns; the F one is unrounded, so prefer it.
+      if (tempF == null && tempC != null) tempF = cToF(tempC);
       else if (tempF != null && tempF < 110) tempF = cToF(tempF);
       let bloomG = num(pick(r, "bloomg")), bloomS = num(pick(r, "blooms")), method = str(pick(r, "method"));
       const bloomRaw = str(pick(r, "bloom"));
