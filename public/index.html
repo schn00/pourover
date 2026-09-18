@@ -562,6 +562,126 @@ body[data-view="log"] .saverow .btn.primary{background:var(--accent);border-colo
 .recipe4 .val input[data-k="grind"]{width:100%;font-size:17px;letter-spacing:0}
 .recipe4 .val input.txtval{font-size:13px;font-weight:600;line-height:1.2}
 body[data-view="log"] .saverow{margin-top:10px}
+/* ===================================================================
+   Shared theme: History, Insights, Recipes, Bags
+   =================================================================== */
+.band{background:color-mix(in srgb,var(--sheet) 86%,transparent);-webkit-backdrop-filter:saturate(1.6) blur(14px);backdrop-filter:saturate(1.6) blur(14px);color:var(--ink);border:0;padding-top:10px}
+.band .bandtitle{color:var(--ink);font-size:24px;font-weight:750;font-stretch:125%;letter-spacing:-.035em}
+.band .bandright,.band .bandmini{color:var(--muted)}
+.band .bandbtn{color:var(--accent);font-weight:650}
+.top{background:color-mix(in srgb,var(--sheet) 86%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom-color:transparent}
+#chrome.scrolled .band{border-bottom:1px solid var(--line)}
+
+/* shared: boards and wash headers on every tab */
+.sect,.selline,.fh{position:relative;overflow:hidden;margin:16px -16px 10px;padding:6px 16px;background:#C8D6FF;border-top:1px solid #93ACF7;border-bottom:1px solid #93ACF7;color:#132BB4;font-size:13px;font-weight:650;letter-spacing:.03em}
+.sect::after,.selline::after,.fh::after{content:"";position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(90deg,color-mix(in srgb,currentColor 22%,transparent),transparent 65%)}
+.selline>*{position:relative;z-index:1}
+
+/* History: brews as a board of rows */
+.hbody{border:1px solid var(--line);border-radius:3px;background:var(--surface);overflow:hidden}
+.hrow{border-top:1px solid var(--line);padding:9px 12px;background:var(--surface)}
+.hrow:first-child{border-top:0}
+.hrow .num,.hrow>b:first-child{color:var(--accent)}
+.hdate{color:var(--muted);font-size:12px}
+.selline{display:flex;align-items:center;gap:8px}
+
+/* Insights: metrics and factors as boards */
+.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:3px;overflow:hidden;margin-bottom:6px}
+.metrics .stat{background:var(--surface);padding:7px 10px;margin:0}
+.factor{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:9px 12px;margin-bottom:6px}
+.factor .bar{background:var(--hair)}
+.factor .bar>span,.factor .bar i{background:var(--accent)}
+
+/* Recipes: card as a board, specs as cells */
+.item{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:10px 12px;margin-bottom:8px}
+.rxspecs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:3px;overflow:hidden;margin:8px -2px}
+.rxspecs>span{background:var(--surface);padding:5px 8px;display:flex;flex-direction:column;gap:1px}
+.rxspecs i{color:var(--muted);font-size:10.5px}
+.pours .prow{border-top:1px solid var(--hair);padding:5px 2px}
+.linkbtn{color:var(--accent);font-weight:650}
+
+/* Bags: each bag as the angled navy card */
+body[data-view="bags"] .list .item{position:relative;overflow:hidden;color:#fff;background:#25306B;border:0;padding:12px 14px;
+  -webkit-clip-path:polygon(0 0,100% 0,100% calc(100% - 26px),calc(100% - 26px) 100%,0 100%);clip-path:polygon(0 0,100% 0,100% calc(100% - 26px),calc(100% - 26px) 100%,0 100%)}
+body[data-view="bags"] .list .item .iname{color:#fff;font-size:19px;font-weight:750;font-stretch:112%}
+body[data-view="bags"] .list .item .beanline,body[data-view="bags"] .list .item .beanmeta{color:#BFCBF5}
+body[data-view="bags"] .list .item .chip{background:rgba(255,255,255,.16);color:#fff}
+body[data-view="bags"] .list .item .beannotes{padding-left:9px;border-left:3px solid #F0A94A;color:#fff;font-style:italic}
+body[data-view="bags"] .list .item .linkbtn{color:#CFD9FF}
+body[data-view="bags"] .list .item.done{opacity:.75;background:#333B5C}
+
+/* dark */
+:root[data-theme="dark"] .sect,html:not([data-theme="light"]) .sect,
+:root[data-theme="dark"] .selline,html:not([data-theme="light"]) .selline,
+:root[data-theme="dark"] .fh,html:not([data-theme="light"]) .fh{background:#1B2A66;border-color:#3A55B8;color:#C3D1FF}
+:root[data-theme="dark"] .hbody,html:not([data-theme="light"]) .hbody,
+:root[data-theme="dark"] .item,html:not([data-theme="light"]) .item,
+:root[data-theme="dark"] .factor,html:not([data-theme="light"]) .factor{background:#0D1120;border-color:rgba(111,140,255,.18)}
+:root[data-theme="dark"] .hrow,html:not([data-theme="light"]) .hrow,
+:root[data-theme="dark"] .metrics .stat,html:not([data-theme="light"]) .metrics .stat,
+:root[data-theme="dark"] .rxspecs>span,html:not([data-theme="light"]) .rxspecs>span{background:#0D1120}
+:root[data-theme="dark"] body[data-view="bags"] .list .item,html:not([data-theme="light"]) body[data-view="bags"] .list .item{background:#111931;box-shadow:inset 0 0 0 1px rgba(111,140,255,.28)}
+
+
+/* revisions: solid strips off-log, colored metrics, separated recipes, lighter bags */
+body:not([data-view="log"]) .sect::after,
+.selline::after,
+.fh::after{display:none}
+.selline,.fh{background:#C8D6FF}
+
+/* Insights: colored stat board */
+.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:#93ACF7;border:1px solid #93ACF7;border-radius:3px;overflow:hidden;padding:0;margin-bottom:10px}
+.metrics .num{background:#E9EFFF;padding:7px 10px;margin:0;display:flex;flex-direction:column;gap:2px;justify-content:flex-start}
+.metrics .nlab{color:#3050C8}
+.metrics .stat{color:#132BB4;background:none;padding:0}
+.metrics .stat i{color:#3050C8}
+:root[data-theme="dark"] .metrics,html:not([data-theme="light"]) .metrics{background:#2E3E86;border-color:#2E3E86}
+:root[data-theme="dark"] .metrics .num,html:not([data-theme="light"]) .metrics .num{background:#151F3F}
+:root[data-theme="dark"] .metrics .nlab,html:not([data-theme="light"]) .metrics .nlab{color:#9BB2FF}
+:root[data-theme="dark"] .metrics .stat,html:not([data-theme="light"]) .metrics .stat{color:#D5DEFF}
+/* Recipes: clearer separation between cards */
+body[data-view="recipes"] .item{margin-bottom:18px;border-top:3px solid var(--accent);box-shadow:0 6px 18px -12px rgba(20,30,90,.5)}
+body[data-view="recipes"] .item.mine{border-top-color:#E8912A}
+body[data-view="recipes"] .item .iname{font-size:18px;font-weight:750;font-stretch:112%}
+
+/* Bags: light cards, navy only for the bag you brewed last */
+body[data-view="bags"] .list .item{background:var(--surface);color:var(--ink);box-shadow:none;
+  border:1px solid var(--line);border-left:4px solid var(--accent);clip-path:none;-webkit-clip-path:none;margin-bottom:10px}
+body[data-view="bags"] .list .item .iname{color:var(--ink)}
+body[data-view="bags"] .list .item .beanline,body[data-view="bags"] .list .item .beanmeta{color:var(--muted)}
+body[data-view="bags"] .list .item .chip{background:var(--accent-soft);color:var(--accent-text)}
+body[data-view="bags"] .list .item .beannotes{color:var(--ink2);border-left-color:#E8912A}
+body[data-view="bags"] .list .item .linkbtn{color:var(--accent)}
+body[data-view="bags"] .list .item.done{border:1px solid var(--line);border-left:4px solid #8A8781;clip-path:none;-webkit-clip-path:none;opacity:.85;background:var(--surface);color:var(--ink)}
+body[data-view="bags"] .list .item.done .iname{color:var(--ink)}
+body[data-view="bags"] .list .item.done .beanline,body[data-view="bags"] .list .item.done .beanmeta{color:var(--muted)}
+body[data-view="bags"] .list .item.done .beannotes{color:var(--ink2);border-left-color:var(--line)}
+body[data-view="bags"] .list .item.done .chip{background:var(--hair);color:var(--muted)}
+body[data-view="bags"] .list .item.done .linkbtn{color:var(--muted)}
+body[data-view="bags"] .list .item:first-child:not(.done){color:#fff;background:#25306B;border:0;border-left:4px solid #2F8C82;
+  -webkit-clip-path:polygon(0 0,100% 0,100% calc(100% - 26px),calc(100% - 26px) 100%,0 100%);clip-path:polygon(0 0,100% 0,100% calc(100% - 26px),calc(100% - 26px) 100%,0 100%)}
+body[data-view="bags"] .list .item:not(.done):first-child .iname{color:#fff}
+body[data-view="bags"] .list .item:not(.done):first-child .beanline,body[data-view="bags"] .list .item:not(.done):first-child .beanmeta{color:#BFCBF5}
+body[data-view="bags"] .list .item:not(.done):first-child .chip{background:rgba(255,255,255,.16);color:#fff}
+body[data-view="bags"] .list .item:not(.done):first-child .beannotes{color:#fff;border-left-color:#F0A94A}
+body[data-view="bags"] .list .item:not(.done):first-child .linkbtn{color:#CFD9FF}
+:root[data-theme="dark"] body[data-view="bags"] .list .item,html:not([data-theme="light"]) body[data-view="bags"] .list .item{background:#0D1120;border-color:rgba(111,140,255,.18);border-left-color:#3A58E0}
+:root[data-theme="dark"] body[data-view="bags"] .list .item:first-child:not(.done),html:not([data-theme="light"]) body[data-view="bags"] .list .item:first-child:not(.done){background:#111931;border:0;border-left:4px solid #3AA396}
+body[data-view="bags"] details.done .list .item:first-child{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-left:4px solid #8A8781;clip-path:none;-webkit-clip-path:none;opacity:.85}
+body[data-view="bags"] details.done .list .item:first-child .iname{color:var(--ink)}
+body[data-view="bags"] details.done .list .item:first-child .beanline,body[data-view="bags"] details.done .list .item:first-child .beanmeta{color:var(--muted)}
+body[data-view="bags"] details.done .list .item:first-child .chip{background:var(--hair);color:var(--muted)}
+body[data-view="bags"] details.done .list .item:first-child .beannotes{color:var(--ink2);border-left-color:var(--line)}
+body[data-view="bags"] details.done .list .item:first-child .linkbtn{color:var(--muted)}
+:root[data-theme="dark"] body[data-view="bags"] details.done .list .item,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item:first-child{background:#0D1120;border-color:rgba(111,140,255,.18);border-left-color:#5A6478}
+/* dark: finished bags stay plain */
+:root[data-theme="dark"] body[data-view="bags"] details.done .list .item:first-child,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item:first-child{background:#0D1120;color:var(--ink);border:1px solid rgba(111,140,255,.18);border-left:4px solid #6E6A64;clip-path:none;-webkit-clip-path:none;opacity:.85}
+:root[data-theme="dark"] body[data-view="bags"] details.done .list .item:first-child .iname,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item:first-child .iname{color:var(--ink)}
+:root[data-theme="dark"] body[data-view="bags"] details.done .list .item:first-child .beanline,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item:first-child .beanline,
+:root[data-theme="dark"] body[data-view="bags"] details.done .list .item:first-child .beanmeta,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item:first-child .beanmeta{color:var(--muted)}
+:root[data-theme="dark"] body[data-view="bags"] details.done .list .item:first-child .chip,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item:first-child .chip{background:var(--hair);color:var(--muted)}
+:root[data-theme="dark"] body[data-view="bags"] details.done .list .item:first-child .beannotes,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item:first-child .beannotes{color:var(--ink2);border-left-color:#6E6A64}
+:root[data-theme="dark"] body[data-view="bags"] details.done .list .item:first-child .linkbtn,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item:first-child .linkbtn{color:var(--muted)}
 </style>
 </head>
 <body>
