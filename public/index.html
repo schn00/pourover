@@ -520,8 +520,6 @@ body[data-view="log"] #chrome.scrolled .top{border-bottom-color:var(--line)}
 .tbtn.ghost{background:var(--surface);color:var(--ink2);border:1px solid #BCCAFB}
 .tbtn.on{background:#E8912A;color:#231403}
 .clock{margin-left:auto;font-size:22px;font-weight:700;font-stretch:118%;letter-spacing:-.03em}
-.prog{height:3px;margin-top:8px;border-radius:2px;background:var(--line);overflow:hidden}
-.prog span{display:block;height:100%;width:0;background:var(--accent);transition:width .3s linear}
 
 /* taste board */
 .tasteboard{grid-template-columns:132px minmax(0,1fr)}
@@ -682,6 +680,30 @@ body[data-view="bags"] details.done .list .item:first-child .linkbtn{color:var(-
 :root[data-theme="dark"] body[data-view="bags"] details.done .list .item:first-child .chip,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item:first-child .chip{background:var(--hair);color:var(--muted)}
 :root[data-theme="dark"] body[data-view="bags"] details.done .list .item:first-child .beannotes,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item:first-child .beannotes{color:var(--ink2);border-left-color:#6E6A64}
 :root[data-theme="dark"] body[data-view="bags"] details.done .list .item:first-child .linkbtn,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item:first-child .linkbtn{color:var(--muted)}
+.prow-edit{display:grid;grid-template-columns:18px 64px 64px auto 1fr 30px;gap:6px;align-items:end;padding:8px 0;border-top:1px solid var(--hair)}
+.prow-edit .pn{font-size:12px;font-weight:700;color:var(--muted);padding-bottom:6px}
+.prow-edit .pf{display:flex;flex-direction:column;gap:2px;min-width:0}
+.prow-edit .pf>span{font-size:10.5px;color:var(--muted)}
+.prow-edit .pf input{width:100%;font-size:15px;font-weight:600;padding:5px 6px;border:1px solid var(--line);border-radius:3px;background:var(--surface)}
+.prow-edit .pf input:focus{border-color:var(--accent);outline:none}
+.prow-edit .addg{font-size:12px;font-weight:700;color:var(--accent);padding-bottom:6px;white-space:nowrap}
+.prow-edit .rmp{padding:5px 0;width:28px;align-self:end;color:var(--muted)}
+.rxhint{font-size:12.5px;color:var(--muted);margin:8px 0}
+.rxwater{display:flex;align-items:baseline;gap:8px}
+.rxwater b{font-size:18px;font-weight:700;font-stretch:112%}
+#rxForm .sect{margin:14px -16px 0}
+
+.bagacts{display:flex;gap:6px;margin-top:8px}
+.bagicon{display:grid;place-items:center;width:28px;height:28px;border-radius:6px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.1);color:#fff;cursor:pointer;padding:0}
+.bagicon svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.bagicon:hover{background:rgba(255,255,255,.2)}
+.bagicon.on{background:#F0A94A;border-color:#F0A94A;color:#2A1B05}
+.roastguide{margin-top:8px;padding:8px 10px;border-radius:4px;background:rgba(255,255,255,.1);border-left:3px solid #F0A94A;color:#E9EDFF;font-size:12.5px;line-height:1.45;white-space:pre-wrap}
+body[data-view="bags"] .list .item .bagicon{border-color:var(--line);background:var(--hair);color:var(--ink2)}
+body[data-view="bags"] .list .item .roastguide{background:var(--hair);color:var(--ink2);border-left-color:#E8912A}
+body[data-view="bags"] .list .item:first-child:not(.done) .bagicon{border-color:rgba(255,255,255,.28);background:rgba(255,255,255,.1);color:#fff}
+body[data-view="bags"] .list .item:first-child:not(.done) .roastguide{background:rgba(255,255,255,.1);color:#E9EDFF;border-left-color:#F0A94A}
+body[data-view="bags"] .list .item .bagicon.on{background:#E8912A;border-color:#E8912A;color:#2A1B05}
 </style>
 </head>
 <body>
@@ -1207,7 +1229,7 @@ let PREFILL = null; // a recipe waiting to be dropped into the next new-brew for
 function lastBrewFor(bagId) { return brews().find((b) => b.bagId === bagId) || null; }
 function draftFrom(src, bagId) {
   const base = src || lastBrewFor(bagId) || brews()[0] || {};
-  const keep = ["grinder", "grind", "tempF", "waterType", "brewer", "dose", "waterG", "bloomG", "bloomS", "method", "pours"];
+  const keep = ["grinder", "grind", "tempF", "waterType", "brewer", "filter", "dose", "waterG", "bloomG", "bloomS", "method", "pours"];
   const d = { id: null, date: today(), bagId, timeS: null, rating: null, taste: null, notes: "" };
   keep.forEach((k) => (d[k] = base[k] ?? null));
   return d;
@@ -1264,6 +1286,8 @@ function viewLog(mode, id) {
       <div class="bagpick"><select class="sbag" data-k="bagId" id="bagSel" aria-label="Bag">${bagOptions(d.bagId)}</select>${CHEV}</div>
       <div class="beanmeta" id="roastInfo"></div>
       <div id="bagMeta"></div>
+      <div class="bagacts" id="bagActs"></div>
+      <div class="roastguide" id="roastGuide" hidden></div>
     </section>
 
     <div class="sect"><span>recipe</span></div>
@@ -1300,7 +1324,6 @@ function viewLog(mode, id) {
           <div class="scaleline"><span id="scaleTxt"></span><button type="button" id="resetScale" hidden>Use recipe amounts</button></div>
           <div id="steps"></div>
           <div class="timerow"><button type="button" class="tbtn" id="tStart">Start</button><button type="button" class="tbtn ghost" id="tReset">Reset</button><span class="clock" id="clock">0:00</span></div>
-          <div class="prog"><span id="progFill"></span></div>
         </div>
       </details>
     </div>
@@ -1537,6 +1560,27 @@ function markEmpty(el) {
 function styleGrind() { const f = $('[data-k="grind"]'); if (f) f.classList.toggle("txtval", !!f.value.trim() && !isNum(num(f.value))); }
 function markAllEmpty() { $$("#brewForm .board .bc").forEach((c) => { const i = c.querySelector("input,textarea"); if (i) markEmpty(i); }); }
 
+function paintBagExtras() {
+  const acts = $("#bagActs"), guide = $("#roastGuide");
+  if (!acts) return;
+  const bag = S.records[$("#bagSel")?.value];
+  const link = bag?.link ? String(bag.link).trim() : "";
+  const notes = bag?.brewNotes ? String(bag.brewNotes).trim() : "";
+  acts.innerHTML =
+    (link ? `<a class="bagicon" href="${esc(link)}" target="_blank" rel="noopener" title="Open the roaster's page" aria-label="Open the roaster's page">
+       <svg viewBox="0 0 24 24"><path d="M10 14L20 4M15 4h5v5M18 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"/></svg></a>` : "")
+    + (notes ? `<button class="bagicon" type="button" id="guideBtn" aria-expanded="false" title="Roaster's brew notes" aria-label="Roaster's brew notes">
+       <svg viewBox="0 0 24 24"><path d="M7 4h10a1 1 0 0 1 1 1v15l-6-3-6 3V5a1 1 0 0 1 1-1zM9 9h6M9 13h4"/></svg></button>` : "");
+  guide.textContent = notes;
+  guide.hidden = true;
+  const gb = $("#guideBtn");
+  if (gb) gb.onclick = () => {
+    const open = guide.hidden;
+    guide.hidden = !open;
+    gb.setAttribute("aria-expanded", String(open));
+    gb.classList.toggle("on", open);
+  };
+}
 function paintProcess() {
   const wm = $("#procWm"); if (!wm) return;
   const bag = S.records[$("#bagSel")?.value];
@@ -1550,15 +1594,16 @@ function alongRecipes() {
   const brewer = ($('[data-k="brewer"]')?.value || "").trim();
   const key = RECIPE_BREWERS.find((b) => normKey(b) === normKey(brewer));
   const list = [];
+  myRecipes().forEach((r) => { if (AL.showAll || !brewer || normKey(r.brewer || "") === normKey(brewer)) list.push({ ...r, mine: true }); });
   (AL.showAll || !key ? RECIPE_BREWERS : [key]).forEach((b) => RECIPES[b].forEach((r) => list.push({ ...r, brewer: b })));
-  return { list, key, brewer };
+  return { list, key: key || (brewer && list.some((r) => r.mine) ? brewer : null), brewer };
 }
 function alongOptions() {
   const sel = $("#recipePick"); if (!sel) return;
   const { list, key } = alongRecipes();
   const cur = AL.recipe ? list.findIndex((r) => r.name === AL.recipe.name && r.brewer === AL.recipe.brewer) : -1;
   sel.innerHTML = `<option value="">Pick a recipe</option>`
-    + list.map((r, i) => `<option value="${i}">${esc(r.name)}${(AL.showAll || !key) ? ` (${esc(r.brewer)})` : ""}</option>`).join("")
+    + list.map((r, i) => `<option value="${i}">${esc(r.name)}${r.mine ? " (yours)" : ""}${(AL.showAll || !key) ? ` \u2013 ${esc(r.brewer)}` : ""}</option>`).join("")
     + (key && !AL.showAll ? `<option value="all">Show all brewers</option>` : "")
     + (AL.showAll && key ? `<option value="mine">Only ${esc(key)}</option>` : "");
   sel.value = cur >= 0 ? String(cur) : "";
@@ -1583,7 +1628,7 @@ function renderAlong() {
   const sc = alongScaled();
   if (!sc) {
     box.innerHTML = `<div class="alongempty">Pick a recipe to pour along with it.</div>`;
-    $("#scaleTxt").textContent = ""; $("#resetScale").hidden = true; $("#progFill").style.width = "0";
+    $("#scaleTxt").textContent = ""; $("#resetScale").hidden = true;
     return;
   }
   box.innerHTML = `<div class="circlewrap">
@@ -1622,13 +1667,13 @@ function paintAlong() {
   $("#ringTgt").textContent = st.cum != null ? `${st.cum} g` : "";
   $("#ringTgt").style.color = col;
   $("#ringAt").textContent = `at ${mmss(st.t)}`;
-  $("#progFill").style.width = `${pct}%`;
 }
 function alongStop() { clearInterval(AL.tick); AL.tick = null; const b = $("#tStart"); if (b) { b.textContent = "Start"; b.classList.remove("on"); } }
 
 function initLogExtras() {
   AL = { recipe: null, t0: null, tick: null, elapsed: 0, showAll: false };
   paintProcess();
+  paintBagExtras();
   markAllEmpty();
   styleGrind();
   const form = $("#brewForm");
@@ -1639,7 +1684,7 @@ function initLogExtras() {
     if (e.target.dataset.k === "brewer") { AL.showAll = false; alongOptions(); }
   });
   form.addEventListener("click", (e) => { if (e.target.closest("[data-step]")) setTimeout(markAllEmpty, 0); });
-  $("#bagSel").addEventListener("change", paintProcess);
+  $("#bagSel").addEventListener("change", () => { paintProcess(); paintBagExtras(); });
 
   const along = $("#along");
   along.open = LS.get("brewlog:alongOpen") === "1";
@@ -1694,7 +1739,7 @@ function initLogExtras() {
   $("#tReset").addEventListener("click", () => {
     alongStop(); AL.elapsed = 0; $("#clock").textContent = "0:00";
     $$("#steps .dots li").forEach((li) => li.classList.remove("done", "now"));
-    $("#progFill").style.width = "0"; paintAlong();
+    paintAlong();
   });
   window.addEventListener("hashchange", alongStop, { once: true });
 }
@@ -1751,7 +1796,10 @@ function viewRecipes() {
   // "Medium-fine" doesn't fit a sixth of a phone, and the specs must stay on one line.
   const shortGrind = (g) => String(g ?? "").replace(/^medium-/i, "m-").replace(/^medium$/i, "medium");
 
-  const card = (r, i) => {
+  const mine = rxFor(brewer);
+  const rxBrewers = [...new Set([...RECIPE_BREWERS, ...myRecipes().map((r) => r.brewer).filter(Boolean)])];
+  const card = (r, key) => {
+    const isMine = String(key).startsWith("my:");
     const dose = doseSaved || r.dose;
     const k = dose / r.dose;
     const water = Math.round(dose * r.ratio);
@@ -1768,7 +1816,7 @@ function viewRecipes() {
         <span class="pnote">${esc(note)}</span><span class="pg">${cum} g</span></div>`;
     }).join("");
     return `<article class="item">
-      <span class="iname">${esc(r.name)}</span><span class="iby">${esc(r.by)}</span>
+      <span class="iname">${esc(r.name)}</span><span class="iby">${esc(r.by || "yours")}</span>
       <div class="rxspecs">
         <span><i>ratio</i>1:${round(r.ratio, 1)}</span>
         <span><i>dose</i>${round(dose, 1)} g</span>
@@ -1779,7 +1827,7 @@ function viewRecipes() {
       </div>
       <div class="pours">${steps}</div>
       <details class="more"><summary>how to pour it</summary><p class="beanline">${esc(r.notes)}</p></details>
-      <div class="acts"><button class="linkbtn" type="button" data-rx="${i}">Brew this</button></div>
+      <div class="acts"><button class="linkbtn" type="button" data-rx="${key}">Brew this</button>${isMine ? `<button class="linkbtn" type="button" data-rxedit="${r.id}">Edit</button>` : ""}</div>
     </article>`;
   };
 
@@ -1801,28 +1849,47 @@ function viewRecipes() {
         <div class="acts"><button class="linkbtn" type="button" data-rx="mine">Brew this</button></div>
       </article>`;
 
-  setBand("Recipes", `<span class="bandnote">${esc(brewer)}</span>`, false);
+  setBand("Recipes", `<button class="bandbtn" type="button" id="newRx">New recipe</button>`, false);
   main.innerHTML = `
     <div class="srow selpair">
       <label class="selline"><span>brewer</span>
-        <select id="rxBrewer" aria-label="Brewer">${RECIPE_BREWERS.map((b) => `<option ${b === brewer ? "selected" : ""}>${esc(b)}</option>`).join("")}</select></label>
+        <select id="rxBrewer" aria-label="Brewer">${rxBrewers.map((b) => `<option ${normKey(b) === normKey(brewer) ? "selected" : ""}>${esc(b)}</option>`).join("")}</select></label>
       <label class="selline"><span>scale to</span>
         <input id="rxDose" inputmode="decimal" value="${doseSaved ?? ""}" placeholder="dose g" aria-label="Scale recipes to this dose in grams"></label>
     </div>
-    <div class="list">${RECIPES[brewer].map(card).join("")}${bestCard}</div>`;
+    <div class="list">${bestCard}</div>
+    ${mine.length ? `<div class="sect"><span>your recipes</span></div><div class="list">${mine.map((r, i) => card(r, "my:" + r.id)).join("")}</div>` : ""}
+    <div class="sect"><span>classics</span></div>
+    <div class="list">${(RECIPES[brewer] || []).map((r, i) => card(r, i)).join("")}</div>`;
 
   $("#rxBrewer").onchange = (e) => { LS.set("brewlog:recipeBrewer", e.target.value); viewRecipes(); };
+  $("#newRx").onclick = () => openRecipeSheet(null, (r) => { if (r?.brewer) LS.set("brewlog:recipeBrewer", r.brewer); viewRecipes(); });
+  main.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-rxedit]"); if (!b) return;
+    openRecipeSheet(S.records[b.dataset.rxedit], (r) => { if (r?.brewer) LS.set("brewlog:recipeBrewer", r.brewer); viewRecipes(); });
+  });
   const di = $("#rxDose");
   di.onchange = () => { const n = num(di.value); if (n && n > 0 && n < 200) LS.set("brewlog:recipeDose", String(round(n, 1))); else LS.remove("brewlog:recipeDose"); viewRecipes(); };
 
   main.onclick = (e) => {
     const btn = e.target.closest("[data-rx]"); if (!btn || ROUTE !== "recipes") return;
     if (!activeBags().length) { toast("Add a bag of beans first."); return; }
+    if (String(btn.dataset.rx).startsWith("my:")) {
+      const r = S.records[btn.dataset.rx.slice(3)];
+      if (!r) return;
+      const dose = doseSaved || r.dose, k = dose / r.dose;
+      const wp = r.pours.filter((x) => isNum(x[1]));
+      PREFILL = { brewer: r.brewer, dose: round(dose, 1), waterG: Math.round(dose * r.ratio), tempF: r.tempF,
+        grind: r.grind || "", pours: wp.length, method: r.name };
+      if (wp.length) { PREFILL.bloomG = Math.round(wp[0][1] * k); PREFILL.bloomS = wp[1] ? wp[1][0] : null; }
+      go("log"); return;
+    }
     if (btn.dataset.rx === "mine") {
       PREFILL = { brewer, dose: round(best.dose, 1), waterG: best.ratio && best.dose ? Math.round(best.dose * best.ratio) : null,
         tempF: best.tempF ? round(best.tempF, 1) : null, grind: best.grind == null ? "" : String(best.grind) };
     } else {
-      const r = RECIPES[brewer][Number(btn.dataset.rx)];
+      const r = (RECIPES[brewer] || [])[Number(btn.dataset.rx)];
+      if (!r) return;
       const dose = doseSaved || r.dose, k = dose / r.dose;
       const wp = r.pours.filter((x) => isNum(x[1]));
       PREFILL = { brewer, dose: round(dose, 1), waterG: Math.round(dose * r.ratio), tempF: r.tempF,
@@ -1977,6 +2044,18 @@ function freeze(bag) { put({ ...bag, freezes: [...(bag.freezes || []), { start: 
 function thaw(bag) { const f = [...(bag.freezes || [])]; if (!f.length) return; f[f.length - 1] = { ...f.at(-1), end: today() }; put({ ...bag, freezes: f }); toast("Thawed. The roast clock is running again."); }
 
 function viewBags() {
+  setTimeout(() => {
+    const m = document.querySelector("main");
+    if (m && !m.dataset.guideBound) {
+      m.dataset.guideBound = "1";
+      m.addEventListener("click", (e) => {
+        const b = e.target.closest("[data-guide]"); if (!b) return;
+        const g = document.getElementById("guide-" + b.dataset.guide); if (!g) return;
+        const open = g.hidden; g.hidden = !open;
+        b.setAttribute("aria-expanded", String(open)); b.classList.toggle("on", open);
+      });
+    }
+  }, 0);
   const act = activeBags();
   const done = allBags().filter((b) => b.finished).sort(byRoastDesc);
   const card = (bag) => {
@@ -1993,7 +2072,12 @@ function viewBags() {
         ${dd && dd.frozen ? `<span>${dd.total} since roast, ${dd.frozen} frozen</span>` : ""}
         <span>${n} brew${n === 1 ? "" : "s"}</span>
       </div>
-      ${bag.notes ? `<div class="beannotes">${esc(bag.notes)}</div>` : ""}
+${bag.notes ? `<div class="beannotes">${esc(bag.notes)}</div>` : ""}
+      ${bag.link || bag.brewNotes ? `<div class="bagacts">
+        ${bag.link ? `<a class="bagicon" href="${esc(bag.link)}" target="_blank" rel="noopener" title="Open the roaster's page" aria-label="Open the roaster's page"><svg viewBox="0 0 24 24"><path d="M10 14L20 4M15 4h5v5M18 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"/></svg></a>` : ""}
+        ${bag.brewNotes ? `<button class="bagicon" type="button" data-guide="${bag.id}" aria-expanded="false" title="Roaster's brew notes" aria-label="Roaster's brew notes"><svg viewBox="0 0 24 24"><path d="M7 4h10a1 1 0 0 1 1 1v15l-6-3-6 3V5a1 1 0 0 1 1-1zM9 9h6M9 13h4"/></svg></button>` : ""}
+      </div>
+      ${bag.brewNotes ? `<div class="roastguide" id="guide-${bag.id}" hidden>${esc(bag.brewNotes)}</div>` : ""}` : ""}
       <div class="acts">
         ${bag.finished ? "" : isFrozen(bag) ? `<button class="linkbtn" data-act="thaw" data-id="${bag.id}" type="button">Thaw</button>` : `<button class="linkbtn" data-act="freeze" data-id="${bag.id}" type="button">Freeze</button>`}
         <button class="linkbtn" data-act="edit" data-id="${bag.id}" type="button">Edit</button>
@@ -2021,7 +2105,7 @@ const BAG_DETAIL_KEYS = ["origin", "region", "process", "variety", "producer", "
 const hasDetail = (g) => !!(g && (BAG_DETAIL_KEYS.some((k) => g[k] != null && g[k] !== "") || g.decaf));
 function openBagSheet(bag, done) {
   const isNew = !bag;
-  const d = bag ? structuredClone(bag) : { id: uid(), type: "bag", createdAt: Date.now(), roaster: "", beans: "", roastType: "", roastDate: "", notes: "", origin: "", region: "", process: "", variety: "", producer: "", elevation: null, decaf: false, freezes: [], finished: false };
+  const d = bag ? structuredClone(bag) : { id: uid(), type: "bag", createdAt: Date.now(), roaster: "", beans: "", link: "", brewNotes: "", roastType: "", roastDate: "", notes: "", origin: "", region: "", process: "", variety: "", producer: "", elevation: null, decaf: false, freezes: [], finished: false };
   const fr = () => (d.freezes || []).map((f, i) => `<div class="freeze">
       <label class="f"><span>Frozen</span><input type="date" data-fi="${i}" data-fk="start" value="${esc(f.start || "")}"></label>
       <label class="f"><span>Thawed</span><input type="date" data-fi="${i}" data-fk="end" value="${esc(f.end || "")}"></label>
@@ -2046,6 +2130,8 @@ function openBagSheet(bag, done) {
           <label class="f wide"><span>Producer or washing station</span><input name="producer" list="dl-producer" value="${esc(d.producer)}" placeholder="Hambela Estate"></label>
           <label class="f"><span>Elevation (masl)</span><input name="elevation" inputmode="numeric" value="${esc(d.elevation ?? "")}" placeholder="1950"></label>
           <label class="f"><span>Decaf</span><div class="seg" id="decafSeg"><button type="button" data-v="false" aria-pressed="${!d.decaf}">No</button><button type="button" data-v="true" aria-pressed="${!!d.decaf}">Yes</button></div></label>
+          <label class="f wide"><span>Link to the bag</span><input name="link" type="url" value="${esc(d.link || "")}" placeholder="https://roaster.com/ethiopia-guji"></label>
+          <label class="f wide"><span>Roaster's brew notes</span><textarea name="brewNotes" rows="3" placeholder="15 g to 250 g, 94\u00b0C, medium-fine, 2:45 total">${esc(d.brewNotes || "")}</textarea></label>
         </div>
       </details>
       <h2 style="margin-top:20px">Freezer</h2>
@@ -2073,6 +2159,8 @@ function openBagSheet(bag, done) {
       if (!val("beans")) { toast("Add the beans' name."); form.querySelector('[name="beans"]').focus(); return; }
       for (const k of ["beans", "roaster", "roastType", "roastDate", "notes", "origin", "region", "process", "variety", "producer"]) d[k] = val(k);
       d.elevation = num(val("elevation"));
+      d.link = val("link");
+      d.brewNotes = val("brewNotes");
       d.freezes = (d.freezes || []).filter((f) => f.start).sort((a, b) => a.start.localeCompare(b.start));
       if (d.freezes.some((f) => f.end && f.end < f.start)) { toast("A thaw date is before its freeze date."); return; }
       put(d);
@@ -2086,6 +2174,107 @@ function openBagSheet(bag, done) {
       putRecords([{ ...bag, deleted: true }, ...bb.map((b) => ({ ...b, deleted: true }))]);
       closeSheet();
       done && done(null);
+    };
+  });
+}
+
+
+// =====================================================================
+// Your own recipes
+// =====================================================================
+function myRecipes() {
+  return Object.values(S.records).filter((r) => r.type === "recipe" && live(r)).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+}
+function rxFor(brewer) { return myRecipes().filter((r) => !brewer || normKey(r.brewer || "") === normKey(brewer)); }
+
+function openRecipeSheet(rec, done) {
+  const isNew = !rec;
+  const unit = settings().tempUnit;
+  const d = rec ? structuredClone(rec) : { id: uid(), type: "recipe", createdAt: Date.now(), name: "", brewer: LS.get("brewlog:recipeBrewer") || RECIPE_BREWERS[0],
+    dose: 15, ratio: 16.7, tempF: 205, grind: "", notes: "", totalS: 210, pours: [[0, 45, "bloom"], [45, 150, ""], [90, 250, ""]] };
+  const tempIn = (f) => (isNum(f) ? (unit === "C" ? round(fToC(f), 1) : round(f, 1)) : "");
+  const rows = () => {
+    let prev = 0;
+    return d.pours.map(([t, g, lab], i) => {
+      const add = isNum(g) ? Math.round(g - prev) : null;
+      if (isNum(g)) prev = g;
+      return `<div class="prow-edit" data-i="${i}">
+        <span class="pn">${i + 1}</span>
+        <label class="pf"><span>at</span><input data-pk="t" inputmode="numeric" value="${esc(mmss(t))}" placeholder="0:45" aria-label="Pour ${i + 1} time"></label>
+        <label class="pf"><span>to g</span><input data-pk="g" inputmode="decimal" value="${g ?? ""}" placeholder="150" aria-label="Pour ${i + 1} total water"></label>
+        <span class="addg">${add != null ? `+${add} g` : ""}</span>
+        <label class="pf note"><span>note</span><input data-pk="lab" value="${esc(lab || "")}" placeholder="bloom" aria-label="Pour ${i + 1} note"></label>
+        <button class="btn rmp" type="button" data-rmp="${i}" aria-label="Remove pour ${i + 1}">&#10005;</button>
+      </div>`;
+    }).join("");
+  };
+  const water = () => Math.round((num(String(d.dose)) || 0) * (num(String(d.ratio)) || 0));
+  openSheet(`
+    <div class="sheet-head"><h1>${isNew ? "New recipe" : "Edit recipe"}</h1><button class="iconbtn" data-close type="button" aria-label="Close">&#10005;</button></div>
+    <div id="rxForm">
+      <div class="grid">
+        <label class="f wide"><span>Name</span><input name="name" value="${esc(d.name)}" placeholder="Morning V60" required></label>
+        <label class="f"><span>Brewer</span><input name="brewer" list="dl-brewer" value="${esc(d.brewer)}" placeholder="V60"></label>
+        <label class="f"><span>Grind</span><input name="grind" value="${esc(d.grind)}" placeholder="24 or medium-fine"></label>
+        <label class="f"><span>Dose g</span><input name="dose" inputmode="decimal" value="${d.dose ?? ""}" placeholder="15"></label>
+        <label class="f"><span>Ratio 1:</span><input name="ratio" inputmode="decimal" value="${d.ratio ?? ""}" placeholder="16.7"></label>
+        <label class="f"><span>Temp &deg;${unit}</span><input name="temp" inputmode="decimal" value="${tempIn(d.tempF)}" placeholder="${unit === "C" ? 96 : 205}"></label>
+        <label class="f"><span>Total time</span><input name="total" inputmode="numeric" value="${esc(mmss(d.totalS))}" placeholder="3:30"></label>
+        <div class="f wide rxwater"><span>Water</span><b id="rxWater">${water()} g</b></div>
+        <label class="f wide"><span>How to pour it</span><textarea name="notes" rows="2" placeholder="Rinse the filter, swirl after the bloom...">${esc(d.notes)}</textarea></label>
+      </div>
+      <div class="sect"><span>pours</span></div>
+      <p class="rxhint">Each row is the total water in the cup by that time. The grams added appear beside it.</p>
+      <div id="rxPours">${rows()}</div>
+      <button class="btn" type="button" id="addPour">Add a pour</button>
+      <div class="sheet-acts">
+        <button class="btn primary" type="button" id="saveRx">${isNew ? "Add recipe" : "Save recipe"}</button>
+        ${isNew ? "" : `<button class="btn danger" type="button" id="delRx">Delete recipe</button>`}
+      </div>
+    </div>`, (root) => {
+    const form = $("#rxForm", root);
+    const redraw = () => { $("#rxPours", root).innerHTML = rows(); };
+    const val = (n) => String(form.querySelector(`[name="${n}"]`)?.value || "").trim();
+    const syncWater = () => { d.dose = num(val("dose")); d.ratio = num(val("ratio")); $("#rxWater", root).textContent = `${water()} g`; };
+    form.addEventListener("input", (e) => {
+      if (["dose", "ratio"].includes(e.target.name)) syncWater();
+      const row = e.target.closest("[data-i]");
+      if (!row) return;
+      const i = Number(row.dataset.i), k = e.target.dataset.pk;
+      if (k === "t") d.pours[i][0] = parseTime(normTime(e.target.value)) ?? d.pours[i][0];
+      if (k === "g") d.pours[i][1] = num(e.target.value);
+      if (k === "lab") d.pours[i][2] = e.target.value.trim();
+      if (k !== "lab") { const at = document.activeElement, sel = at.selectionStart; redraw();
+        const again = $(`#rxPours [data-i="${i}"] [data-pk="${k}"]`, root); if (again) { again.focus(); try { again.setSelectionRange(sel, sel); } catch {} } }
+    });
+    $("#rxPours", root).addEventListener("click", (e) => {
+      const i = e.target.dataset.rmp; if (i == null) return;
+      if (d.pours.length <= 1) { toast("A recipe needs at least one pour."); return; }
+      d.pours.splice(Number(i), 1); redraw();
+    });
+    $("#addPour", root).onclick = () => {
+      const last = d.pours[d.pours.length - 1] || [0, 0, ""];
+      d.pours.push([(last[0] || 0) + 45, Math.round((last[1] || 0) * 1.4) || 100, ""]);
+      redraw();
+    };
+    $("#saveRx", root).onclick = () => {
+      if (!val("name")) { toast("Give the recipe a name."); form.querySelector('[name="name"]').focus(); return; }
+      if (!val("brewer")) { toast("Which brewer is it for?"); return; }
+      const t = num(val("temp"));
+      Object.assign(d, {
+        name: val("name"), brewer: val("brewer"), grind: val("grind"), notes: val("notes"), by: "yours",
+        dose: num(val("dose")) || 15, ratio: num(val("ratio")) || 16.7,
+        tempF: t == null ? null : round(unit === "C" ? cToF(t) : t, 1),
+        totalS: parseTime(normTime(val("total"))) ?? (d.pours[d.pours.length - 1]?.[0] ?? 0) + 60,
+      });
+      d.pours = d.pours.filter((x) => isNum(x[1])).sort((a, b) => a[0] - b[0]);
+      if (!d.pours.length) { toast("Add at least one pour with a water amount."); return; }
+      put(d); closeSheet(); done && done(d);
+    };
+    const del = $("#delRx", root);
+    if (del) del.onclick = (e) => {
+      if (!armed(e.currentTarget, "Tap again to delete")) return;
+      put({ ...rec, deleted: true }); closeSheet(); done && done(null);
     };
   });
 }
