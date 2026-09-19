@@ -644,7 +644,7 @@ body[data-view="recipes"] .item .iname{font-size:18px;font-weight:750;font-stret
 
 /* Bags: light cards, navy only for the bag you brewed last */
 body[data-view="bags"] .list .item{background:var(--surface);color:var(--ink);box-shadow:none;
-  border:1px solid var(--line);border-left:4px solid var(--accent);clip-path:none;-webkit-clip-path:none;margin-bottom:10px}
+  border:1px solid var(--line);border-left:4px solid #E8DCC4;clip-path:none;-webkit-clip-path:none;margin-bottom:10px}
 body[data-view="bags"] .list .item .iname{color:var(--ink)}
 body[data-view="bags"] .list .item .beanline,body[data-view="bags"] .list .item .beanmeta{color:var(--muted)}
 body[data-view="bags"] .list .item .chip{background:var(--accent-soft);color:var(--accent-text)}
@@ -656,30 +656,30 @@ body[data-view="bags"] .list .item.done .beanline,body[data-view="bags"] .list .
 body[data-view="bags"] .list .item.done .beannotes{color:var(--ink2);border-left-color:var(--line)}
 body[data-view="bags"] .list .item.done .chip{background:var(--hair);color:var(--muted)}
 body[data-view="bags"] .list .item.done .linkbtn{color:var(--muted)}
-body[data-view="bags"] .list .item:first-child:not(.done){color:#fff;background:#25306B;border:0;border-left:4px solid #6F8CFF;
+body[data-view="bags"] .list .item.recent{color:#fff;background:#25306B;border:0;border-left:4px solid #6F8CFF;
   -webkit-clip-path:polygon(0 0,100% 0,100% calc(100% - 26px),calc(100% - 26px) 100%,0 100%);clip-path:polygon(0 0,100% 0,100% calc(100% - 26px),calc(100% - 26px) 100%,0 100%)}
-body[data-view="bags"] .list .item:not(.done):first-child .iname{color:#fff}
-body[data-view="bags"] .list .item:not(.done):first-child .beanline,body[data-view="bags"] .list .item:not(.done):first-child .beanmeta{color:#BFCBF5}
-body[data-view="bags"] .list .item:not(.done):first-child .chip{background:rgba(255,255,255,.16);color:#fff}
-body[data-view="bags"] .list .item:not(.done):first-child .beannotes{color:#fff;border-left-color:#F0A94A}
-body[data-view="bags"] .list .item:not(.done):first-child .linkbtn{color:#CFD9FF}
+body[data-view="bags"] .list .item.recent .iname{color:#fff}
+body[data-view="bags"] .list .item.recent .beanline,body[data-view="bags"] .list .item.recent .beanmeta{color:#BFCBF5}
+body[data-view="bags"] .list .item.recent .chip{background:rgba(255,255,255,.16);color:#fff}
+body[data-view="bags"] .list .item.recent .beannotes{color:#fff;border-left-color:#F0A94A}
+body[data-view="bags"] .list .item.recent .linkbtn{color:#CFD9FF}
 :root[data-theme="dark"] body[data-view="bags"] .list .item,html:not([data-theme="light"]) body[data-view="bags"] .list .item{background:#0D1120;border-color:rgba(111,140,255,.18);border-left-color:#D8CBB0}
-:root[data-theme="dark"] body[data-view="bags"] .list .item:first-child:not(.done),html:not([data-theme="light"]) body[data-view="bags"] .list .item:first-child:not(.done){background:#111931;border:0;border-left:4px solid #7F9BFF}
-body[data-view="bags"] details.done .list .item:first-child{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-left:4px solid #8A8781;clip-path:none;-webkit-clip-path:none;opacity:.85}
-body[data-view="bags"] details.done .list .item:first-child .iname{color:var(--ink)}
-body[data-view="bags"] details.done .list .item:first-child .beanline,body[data-view="bags"] details.done .list .item:first-child .beanmeta{color:var(--muted)}
-body[data-view="bags"] details.done .list .item:first-child .chip{background:var(--hair);color:var(--muted)}
-body[data-view="bags"] details.done .list .item:first-child .beannotes{color:var(--ink2);border-left-color:var(--line)}
-body[data-view="bags"] details.done .list .item:first-child .linkbtn{color:var(--muted)}
-:root[data-theme="dark"] body[data-view="bags"] details.done .list .item,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item:first-child{background:#0D1120;border-color:rgba(111,140,255,.18);border-left-color:#5A6478}
+:root[data-theme="dark"] body[data-view="bags"] .list .item.recent,html:not([data-theme="light"]) body[data-view="bags"] .list .item.recent{background:#111931;border:0;border-left:4px solid #7F9BFF}
+body[data-view="bags"] details.done .list .item{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-left:4px solid #8A8781;clip-path:none;-webkit-clip-path:none;opacity:.85}
+body[data-view="bags"] details.done .list .item .iname{color:var(--ink)}
+body[data-view="bags"] details.done .list .item .beanline,body[data-view="bags"] details.done .list .item .beanmeta{color:var(--muted)}
+body[data-view="bags"] details.done .list .item .chip{background:var(--hair);color:var(--muted)}
+body[data-view="bags"] details.done .list .item .beannotes{color:var(--ink2);border-left-color:var(--line)}
+body[data-view="bags"] details.done .list .item .linkbtn{color:var(--muted)}
+:root[data-theme="dark"] body[data-view="bags"] details.done .list .item,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item{background:#0D1120;border-color:rgba(111,140,255,.18);border-left-color:#5A6478}
 /* dark: finished bags stay plain */
-:root[data-theme="dark"] body[data-view="bags"] details.done .list .item:first-child,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item:first-child{background:#0D1120;color:var(--ink);border:1px solid rgba(111,140,255,.18);border-left:4px solid #6E6A64;clip-path:none;-webkit-clip-path:none;opacity:.85}
-:root[data-theme="dark"] body[data-view="bags"] details.done .list .item:first-child .iname,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item:first-child .iname{color:var(--ink)}
-:root[data-theme="dark"] body[data-view="bags"] details.done .list .item:first-child .beanline,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item:first-child .beanline,
-:root[data-theme="dark"] body[data-view="bags"] details.done .list .item:first-child .beanmeta,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item:first-child .beanmeta{color:var(--muted)}
-:root[data-theme="dark"] body[data-view="bags"] details.done .list .item:first-child .chip,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item:first-child .chip{background:var(--hair);color:var(--muted)}
-:root[data-theme="dark"] body[data-view="bags"] details.done .list .item:first-child .beannotes,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item:first-child .beannotes{color:var(--ink2);border-left-color:#6E6A64}
-:root[data-theme="dark"] body[data-view="bags"] details.done .list .item:first-child .linkbtn,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item:first-child .linkbtn{color:var(--muted)}
+:root[data-theme="dark"] body[data-view="bags"] details.done .list .item,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item{background:#0D1120;color:var(--ink);border:1px solid rgba(111,140,255,.18);border-left:4px solid #6E6A64;clip-path:none;-webkit-clip-path:none;opacity:.85}
+:root[data-theme="dark"] body[data-view="bags"] details.done .list .item .iname,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item .iname{color:var(--ink)}
+:root[data-theme="dark"] body[data-view="bags"] details.done .list .item .beanline,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item .beanline,
+:root[data-theme="dark"] body[data-view="bags"] details.done .list .item .beanmeta,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item .beanmeta{color:var(--muted)}
+:root[data-theme="dark"] body[data-view="bags"] details.done .list .item .chip,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item .chip{background:var(--hair);color:var(--muted)}
+:root[data-theme="dark"] body[data-view="bags"] details.done .list .item .beannotes,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item .beannotes{color:var(--ink2);border-left-color:#6E6A64}
+:root[data-theme="dark"] body[data-view="bags"] details.done .list .item .linkbtn,html:not([data-theme="light"]) body[data-view="bags"] details.done .list .item .linkbtn{color:var(--muted)}
 .prow-edit{display:grid;grid-template-columns:18px 64px 64px auto 1fr 30px;gap:6px;align-items:end;padding:8px 0;border-top:1px solid var(--hair)}
 .prow-edit .pn{font-size:12px;font-weight:700;color:var(--muted);padding-bottom:6px}
 .prow-edit .pf{display:flex;flex-direction:column;gap:2px;min-width:0}
@@ -700,7 +700,7 @@ body[data-view="bags"] details.done .list .item:first-child .linkbtn{color:var(-
 .bagicon.on{opacity:1;color:#F0A94A}
 .roastguide{margin-top:8px;padding:8px 10px;border-radius:4px;background:rgba(255,255,255,.1);border-left:3px solid #F0A94A;color:#E9EDFF;font-size:12.5px;line-height:1.45;white-space:pre-wrap}
 body[data-view="bags"] .list .item .roastguide{background:var(--hair);color:var(--ink2);border-left-color:#E8912A}
-body[data-view="bags"] .list .item:first-child:not(.done) .roastguide{background:rgba(255,255,255,.1);color:#E9EDFF;border-left-color:#F0A94A}
+body[data-view="bags"] .list .item.recent .roastguide{background:rgba(255,255,255,.1);color:#E9EDFF;border-left-color:#F0A94A}
 body[data-view="bags"] .list .item .bagicon.on{color:#C87A16}
 
 /* insights: quiet factor headers with a cobalt edge on the strongest */
@@ -718,6 +718,7 @@ body[data-view="bags"] .list .item .bagicon.on{color:#C87A16}
 :root[data-theme="dark"] .factor .fh,html:not([data-theme="light"]) .factor .fh{background:none;border:0;color:var(--ink)}
 :root[data-theme="dark"] .factor .fh span,html:not([data-theme="light"]) .factor .fh span{color:var(--accent)}
 .metrics .num .stat,.metrics .stat{background:none!important;padding:0;box-shadow:none}
+.roastername{font-size:11px;font-weight:750;letter-spacing:.08em;text-transform:uppercase;font-stretch:112%}
 </style>
 </head>
 <body>
@@ -2092,13 +2093,16 @@ function viewBags() {
   }, 0);
   const act = activeBags();
   const done = allBags().filter((b) => b.finished).sort(byRoastDesc);
+  const recentId = brews().slice().sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")) || (b.createdAt || 0) - (a.createdAt || 0))[0]?.bagId;
   const card = (bag) => {
+    const recent = bag.id === recentId && !bag.finished;
     const dd = daysOff(bag);
     const n = brews().filter((b) => b.bagId === bag.id).length;
-    const line1 = [bag.roaster, bag.roastType && String(bag.roastType).toLowerCase() + " roast", bag.roastDate && "roasted " + fmtDate(bag.roastDate)].filter(Boolean).join(" \u00b7 ");
-    return `<article class="item">
+    const restLine = [bag.roastType && String(bag.roastType).toLowerCase() + " roast", bag.roastDate && "roasted " + fmtDate(bag.roastDate)].filter(Boolean).join(" \u00b7 ");
+    const line1 = (bag.roaster ? `<span class="roastername">${esc(bag.roaster)}</span>${restLine ? " \u00b7 " : ""}` : "") + esc(restLine);
+    return `<article class="item${recent ? " recent" : ""}">
       <span class="iname">${esc(bag.beans || "Untitled beans")}</span>
-      ${line1 ? `<div class="beanline">${esc(line1)}</div>` : ""}
+      ${line1 ? `<div class="beanline">${line1}</div>` : ""}
       ${originLine(bag) || bag.link || bag.brewNotes ? `<div class="beanline">${esc(originLine(bag) || "")}${bag.link || bag.brewNotes ? `<span class="bagacts">${bag.link ? `<a class="bagicon" href="${esc(bag.link)}" target="_blank" rel="noopener" title="Open the roaster's page" aria-label="Open the roaster's page"><svg viewBox="0 0 24 24"><path d="M10 14L20 4M15 4h5v5M18 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"/></svg></a>` : ""}${bag.brewNotes ? `<button class="bagicon" type="button" data-guide="${bag.id}" aria-expanded="false" title="Roaster's brew notes" aria-label="Roaster's brew notes"><svg viewBox="0 0 24 24"><path d="M7 4h10a1 1 0 0 1 1 1v15l-6-3-6 3V5a1 1 0 0 1 1-1zM9 9h6M9 13h4"/></svg></button>` : ""}</span>` : ""}</div>` : ""}
       <div class="beanmeta">
         ${dd ? `<span class="chip">${dd.adjusted} day${dd.adjusted === 1 ? "" : "s"} off roast</span>` : ""}
