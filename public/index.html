@@ -719,6 +719,10 @@ body[data-view="bags"] .list .item .bagicon.on{color:#C87A16}
 :root[data-theme="dark"] .factor .fh span,html:not([data-theme="light"]) .factor .fh span{color:var(--accent)}
 .metrics .num .stat,.metrics .stat{background:none!important;padding:0;box-shadow:none}
 .roastername{font-size:11px;font-weight:750;letter-spacing:.08em;text-transform:uppercase;font-stretch:112%}
+.roasterline{margin-top:0;line-height:1.25;color:#BFCBF5}
+.bagcard .sbag{padding-bottom:0}
+.bagcard .bagpick{margin-bottom:1px}
+.bagcard .beanmeta{margin-top:6px}
 </style>
 </head>
 <body>
@@ -1420,6 +1424,7 @@ function viewLog(mode, id) {
     const tb = $("#thawNow");
     if (tb) tb.onclick = () => { thaw(bag); updRoast(); };
     if (typeof paintBagExtras === "function") paintBagExtras();
+    if (typeof paintRoasterLine === "function") paintRoasterLine();
   };
   updRoast();
   initLogExtras();
@@ -1576,6 +1581,32 @@ function markEmpty(el) {
 function styleGrind() { const f = $('[data-k="grind"]'); if (f) f.classList.toggle("txtval", !!f.value.trim() && !isNum(num(f.value))); }
 function markAllEmpty() { $$("#brewForm .board .bc").forEach((c) => { const i = c.querySelector("input,textarea"); if (i) markEmpty(i); }); }
 
+function paintRoasterLine() {
+  const card = $(".bagcard"); if (!card) return;
+  $$(".roasterline", card).forEach((n) => n.remove());
+  const sel = $("#bagSel");
+  if (sel) [...sel.options].forEach((o) => { const b = S.records[o.value];
+    o.textContent = b?.beans && o.value !== "__new" ? b.beans + (b.finished ? " (finished)" : "") : o.textContent;
+  });
+  const bag = S.records[sel?.value];
+  if (!bag?.roaster) return;
+  const div = document.createElement("div");
+  div.className = "roasterline roastername";
+  div.textContent = bag.roaster;
+  const pick = $(".bagcard .bagpick");
+  if (pick) pick.insertAdjacentElement("afterend", div);
+  if (sel && !sel.dataset.shortBound) {
+    sel.dataset.shortBound = "1";
+    const longLabels = () => [...sel.options].forEach((o) => { const b = S.records[o.value];
+      if (b) o.textContent = bagName(b) + (b.finished ? " (finished)" : ""); });
+    const shortLabels = () => [...sel.options].forEach((o) => { const b = S.records[o.value];
+      if (b?.beans) o.textContent = b.beans + (b.finished ? " (finished)" : ""); });
+    sel.addEventListener("mousedown", longLabels);
+    sel.addEventListener("focus", longLabels);
+    sel.addEventListener("blur", () => { shortLabels(); });
+    sel.addEventListener("change", () => setTimeout(() => { shortLabels(); }, 0));
+  }
+}
 function paintBagExtras() {
   const card = $(".bagcard"), guide = $("#roastGuide");
   if (!card || !guide) return;
