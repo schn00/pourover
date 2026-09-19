@@ -702,6 +702,22 @@ body[data-view="bags"] details.done .list .item:first-child .linkbtn{color:var(-
 body[data-view="bags"] .list .item .roastguide{background:var(--hair);color:var(--ink2);border-left-color:#E8912A}
 body[data-view="bags"] .list .item:first-child:not(.done) .roastguide{background:rgba(255,255,255,.1);color:#E9EDFF;border-left-color:#F0A94A}
 body[data-view="bags"] .list .item .bagicon.on{color:#C87A16}
+
+/* insights: quiet factor headers with a cobalt edge on the strongest */
+.factor{border-left:4px solid var(--line);padding-left:11px}
+.factor:first-of-type{border-left-color:var(--accent)}
+.factor .fh{background:none;border:0;border-radius:0;color:var(--ink);margin:0 0 5px;padding:0;font-size:14.5px;font-weight:700;display:flex;justify-content:space-between;align-items:baseline;letter-spacing:0}
+.factor .fh::after{display:none}
+.factor .fh span{font-size:11px;font-weight:600;color:var(--accent);letter-spacing:0}
+:root[data-theme="dark"] .factor,html:not([data-theme="light"]) .factor{border-left-color:rgba(111,140,255,.2)}
+:root[data-theme="dark"] .factor:first-of-type,html:not([data-theme="light"]) .factor:first-of-type{border-left-color:var(--accent)}
+/* bag picker options stay readable */
+.bagcard .sbag option{color:#14161F;background-color:#FFFFFF}
+:root[data-theme="dark"] .bagcard .sbag option,html:not([data-theme="light"]) .bagcard .sbag option{color:#EEF1FA;background-color:#1B2237}
+/* dark: keep factor headers flat and stats clean */
+:root[data-theme="dark"] .factor .fh,html:not([data-theme="light"]) .factor .fh{background:none;border:0;color:var(--ink)}
+:root[data-theme="dark"] .factor .fh span,html:not([data-theme="light"]) .factor .fh span{color:var(--accent)}
+.metrics .num .stat,.metrics .stat{background:none!important;padding:0;box-shadow:none}
 </style>
 </head>
 <body>
