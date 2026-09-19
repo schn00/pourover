@@ -1418,6 +1418,7 @@ function viewLog(mode, id) {
       + (bag.notes ? `<div class="beannotes">${esc(bag.notes)}</div>` : "");
     const tb = $("#thawNow");
     if (tb) tb.onclick = () => { thaw(bag); updRoast(); };
+    if (typeof paintBagExtras === "function") paintBagExtras();
   };
   updRoast();
   initLogExtras();
@@ -1575,22 +1576,26 @@ function styleGrind() { const f = $('[data-k="grind"]'); if (f) f.classList.togg
 function markAllEmpty() { $$("#brewForm .board .bc").forEach((c) => { const i = c.querySelector("input,textarea"); if (i) markEmpty(i); }); }
 
 function paintBagExtras() {
-  const acts = $("#bagActs"), guide = $("#roastGuide");
-  if (!acts) return;
+  const card = $(".bagcard"), guide = $("#roastGuide");
+  if (!card || !guide) return;
+  $$(".bagacts", card).forEach((n) => n.remove());
   const bag = S.records[$("#bagSel")?.value];
   const link = bag?.link ? String(bag.link).trim() : "";
   const notes = bag?.brewNotes ? String(bag.brewNotes).trim() : "";
+  guide.textContent = notes;
+  guide.hidden = true;
+  if (!link && !notes) return;
   const lines = $$("#bagMeta .beanline");
-  const host = lines[lines.length - 1] || $("#roastInfo");
-  if (host && acts.parentElement !== host) host.appendChild(acts);
+  const host = lines[lines.length - 1] || $("#roastInfo") || card;
+  const acts = document.createElement("span");
+  acts.className = "bagacts";
   acts.innerHTML =
     (link ? `<a class="bagicon" href="${esc(link)}" target="_blank" rel="noopener" title="Open the roaster's page" aria-label="Open the roaster's page">
        <svg viewBox="0 0 24 24"><path d="M10 14L20 4M15 4h5v5M18 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"/></svg></a>` : "")
     + (notes ? `<button class="bagicon" type="button" id="guideBtn" aria-expanded="false" title="Roaster's brew notes" aria-label="Roaster's brew notes">
        <svg viewBox="0 0 24 24"><path d="M7 4h10a1 1 0 0 1 1 1v15l-6-3-6 3V5a1 1 0 0 1 1-1zM9 9h6M9 13h4"/></svg></button>` : "");
-  guide.textContent = notes;
-  guide.hidden = true;
-  const gb = $("#guideBtn");
+  host.appendChild(acts);
+  const gb = $("#guideBtn", acts);
   if (gb) gb.onclick = () => {
     const open = guide.hidden;
     guide.hidden = !open;
@@ -1629,7 +1634,6 @@ function alongScaled() {
   const r = AL.recipe; if (!r) return null;
   const dose = num($('[data-k="dose"]').value) || r.dose;
   const k = dose / r.dose;
-  const water = Math.round(dose * r.ratio);
   let prev = 0;
   const steps = r.pours.map(([t, g, lab]) => {
     const cum = g == null ? null : Math.round(g * k);
@@ -1637,6 +1641,9 @@ function alongScaled() {
     if (cum != null) prev = cum;
     return { t, cum, add, lab };
   });
+  // The written pours are the source of truth; fall back to the ratio only when a recipe has none.
+  const lastCum = [...steps].reverse().find((x) => x.cum != null)?.cum;
+  const water = lastCum ?? Math.round(dose * r.ratio);
   steps.push({ t: r.totalS, cum: null, add: null, lab: "drawdown" });
   return { dose, water, steps };
 }
@@ -1656,7 +1663,7 @@ function renderAlong() {
       <span class="tgt">${st.cum != null ? st.cum + " g" : ""}</span></li>`).join("")}</ol></div>`;
   const off = Math.abs(sc.dose - AL.recipe.dose) > 0.05;
   $("#scaleTxt").innerHTML = off
-    ? `Scaled from ${round(AL.recipe.dose, 1)} g to <b>${round(sc.dose, 1)} g</b>, so ${sc.water} g water at 1:${round(AL.recipe.ratio, 1)}`
+    ? `Scaled from ${round(AL.recipe.dose, 1)} g to <b>${round(sc.dose, 1)} g</b>, so ${sc.water} g water at 1:${round(sc.water / sc.dose, 1)}`
     : `${round(AL.recipe.dose, 1)} g and ${sc.water} g water at 1:${round(AL.recipe.ratio, 1)}. Change coffee above to rescale.`;
   $("#resetScale").hidden = !off;
   paintAlong();
@@ -1690,7 +1697,7 @@ function alongStop() { clearInterval(AL.tick); AL.tick = null; const b = $("#tSt
 function initLogExtras() {
   AL = { recipe: null, t0: null, tick: null, elapsed: 0, showAll: false };
   paintProcess();
-  setTimeout(paintBagExtras, 0);
+  paintBagExtras();
   markAllEmpty();
   styleGrind();
   const form = $("#brewForm");
@@ -1701,7 +1708,7 @@ function initLogExtras() {
     if (e.target.dataset.k === "brewer") { AL.showAll = false; alongOptions(); }
   });
   form.addEventListener("click", (e) => { if (e.target.closest("[data-step]")) setTimeout(markAllEmpty, 0); });
-  $("#bagSel").addEventListener("change", () => { paintProcess(); setTimeout(paintBagExtras, 0); });
+  $("#bagSel").addEventListener("change", () => { paintProcess(); paintBagExtras(); });
 
   const along = $("#along");
   along.open = LS.get("brewlog:alongOpen") === "1";
@@ -1728,8 +1735,15 @@ function initLogExtras() {
     const set = (k, val) => { const f = $(`[data-k="${k}"]`); if (f && val != null && val !== "") { f.value = val; markEmpty(f); } };
     set("dose", round(sc.dose, 1)); set("waterG", sc.water);
     set("grind", r.grind); styleGrind(); set("temp", unit === "C" ? round(fToC(r.tempF), 1) : r.tempF);
-    const bloom = sc.steps[0];
-    set("bloomG", bloom.cum); set("pours", sc.steps.filter((x) => x.cum != null).length);
+    const bloom = sc.steps[0], second = sc.steps[1];
+    const firstLab = String(bloom?.lab || "").toLowerCase();
+    const noBloom = /no bloom|skip bloom/.test(firstLab);
+    const smallFirst = bloom?.cum != null && second?.cum != null && bloom.cum < sc.water * 0.5;
+    const hasBloom = !noBloom && bloom?.cum != null && second?.cum != null && (firstLab.includes("bloom") || (!r.immersion && smallFirst));
+    const clear = (k) => { const f = $(`[data-k="${k}"]`); if (f) { f.value = ""; markEmpty(f); } };
+    if (hasBloom) { set("bloomG", bloom.cum); set("bloomS", second.t); } else { clear("bloomG"); clear("bloomS"); }
+    set("pours", sc.steps.filter((x) => x.cum != null).length);
+    set("method", r.by && r.by !== "yours" ? `${r.name} (${r.by})` : r.name);
     FORM.dirty = true;
     $('[data-k="dose"]').dispatchEvent(new Event("input", { bubbles: true }));
     renderAlong();
