@@ -656,15 +656,15 @@ body[data-view="bags"] .list .item.done .beanline,body[data-view="bags"] .list .
 body[data-view="bags"] .list .item.done .beannotes{color:var(--ink2);border-left-color:var(--line)}
 body[data-view="bags"] .list .item.done .chip{background:var(--hair);color:var(--muted)}
 body[data-view="bags"] .list .item.done .linkbtn{color:var(--muted)}
-body[data-view="bags"] .list .item:first-child:not(.done){color:#fff;background:#25306B;border:0;border-left:4px solid #2F8C82;
+body[data-view="bags"] .list .item:first-child:not(.done){color:#fff;background:#25306B;border:0;border-left:4px solid #6F8CFF;
   -webkit-clip-path:polygon(0 0,100% 0,100% calc(100% - 26px),calc(100% - 26px) 100%,0 100%);clip-path:polygon(0 0,100% 0,100% calc(100% - 26px),calc(100% - 26px) 100%,0 100%)}
 body[data-view="bags"] .list .item:not(.done):first-child .iname{color:#fff}
 body[data-view="bags"] .list .item:not(.done):first-child .beanline,body[data-view="bags"] .list .item:not(.done):first-child .beanmeta{color:#BFCBF5}
 body[data-view="bags"] .list .item:not(.done):first-child .chip{background:rgba(255,255,255,.16);color:#fff}
 body[data-view="bags"] .list .item:not(.done):first-child .beannotes{color:#fff;border-left-color:#F0A94A}
 body[data-view="bags"] .list .item:not(.done):first-child .linkbtn{color:#CFD9FF}
-:root[data-theme="dark"] body[data-view="bags"] .list .item,html:not([data-theme="light"]) body[data-view="bags"] .list .item{background:#0D1120;border-color:rgba(111,140,255,.18);border-left-color:#3A58E0}
-:root[data-theme="dark"] body[data-view="bags"] .list .item:first-child:not(.done),html:not([data-theme="light"]) body[data-view="bags"] .list .item:first-child:not(.done){background:#111931;border:0;border-left:4px solid #3AA396}
+:root[data-theme="dark"] body[data-view="bags"] .list .item,html:not([data-theme="light"]) body[data-view="bags"] .list .item{background:#0D1120;border-color:rgba(111,140,255,.18);border-left-color:#D8CBB0}
+:root[data-theme="dark"] body[data-view="bags"] .list .item:first-child:not(.done),html:not([data-theme="light"]) body[data-view="bags"] .list .item:first-child:not(.done){background:#111931;border:0;border-left:4px solid #7F9BFF}
 body[data-view="bags"] details.done .list .item:first-child{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-left:4px solid #8A8781;clip-path:none;-webkit-clip-path:none;opacity:.85}
 body[data-view="bags"] details.done .list .item:first-child .iname{color:var(--ink)}
 body[data-view="bags"] details.done .list .item:first-child .beanline,body[data-view="bags"] details.done .list .item:first-child .beanmeta{color:var(--muted)}
@@ -693,17 +693,15 @@ body[data-view="bags"] details.done .list .item:first-child .linkbtn{color:var(-
 .rxwater b{font-size:18px;font-weight:700;font-stretch:112%}
 #rxForm .sect{margin:14px -16px 0}
 
-.bagacts{display:flex;gap:6px;margin-top:8px}
-.bagicon{display:grid;place-items:center;width:28px;height:28px;border-radius:6px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.1);color:#fff;cursor:pointer;padding:0}
-.bagicon svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.bagicon:hover{background:rgba(255,255,255,.2)}
-.bagicon.on{background:#F0A94A;border-color:#F0A94A;color:#2A1B05}
+.bagacts{display:inline-flex;gap:8px;margin-left:8px;vertical-align:-2px}
+.bagicon{display:inline-grid;place-items:center;width:17px;height:17px;border:0;background:none;padding:0;color:inherit;opacity:.72;cursor:pointer}
+.bagicon svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.bagicon:hover{opacity:1}
+.bagicon.on{opacity:1;color:#F0A94A}
 .roastguide{margin-top:8px;padding:8px 10px;border-radius:4px;background:rgba(255,255,255,.1);border-left:3px solid #F0A94A;color:#E9EDFF;font-size:12.5px;line-height:1.45;white-space:pre-wrap}
-body[data-view="bags"] .list .item .bagicon{border-color:var(--line);background:var(--hair);color:var(--ink2)}
 body[data-view="bags"] .list .item .roastguide{background:var(--hair);color:var(--ink2);border-left-color:#E8912A}
-body[data-view="bags"] .list .item:first-child:not(.done) .bagicon{border-color:rgba(255,255,255,.28);background:rgba(255,255,255,.1);color:#fff}
 body[data-view="bags"] .list .item:first-child:not(.done) .roastguide{background:rgba(255,255,255,.1);color:#E9EDFF;border-left-color:#F0A94A}
-body[data-view="bags"] .list .item .bagicon.on{background:#E8912A;border-color:#E8912A;color:#2A1B05}
+body[data-view="bags"] .list .item .bagicon.on{color:#C87A16}
 </style>
 </head>
 <body>
@@ -1566,6 +1564,9 @@ function paintBagExtras() {
   const bag = S.records[$("#bagSel")?.value];
   const link = bag?.link ? String(bag.link).trim() : "";
   const notes = bag?.brewNotes ? String(bag.brewNotes).trim() : "";
+  const lines = $$("#bagMeta .beanline");
+  const host = lines[lines.length - 1] || $("#roastInfo");
+  if (host && acts.parentElement !== host) host.appendChild(acts);
   acts.innerHTML =
     (link ? `<a class="bagicon" href="${esc(link)}" target="_blank" rel="noopener" title="Open the roaster's page" aria-label="Open the roaster's page">
        <svg viewBox="0 0 24 24"><path d="M10 14L20 4M15 4h5v5M18 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"/></svg></a>` : "")
@@ -1673,7 +1674,7 @@ function alongStop() { clearInterval(AL.tick); AL.tick = null; const b = $("#tSt
 function initLogExtras() {
   AL = { recipe: null, t0: null, tick: null, elapsed: 0, showAll: false };
   paintProcess();
-  paintBagExtras();
+  setTimeout(paintBagExtras, 0);
   markAllEmpty();
   styleGrind();
   const form = $("#brewForm");
@@ -1684,7 +1685,7 @@ function initLogExtras() {
     if (e.target.dataset.k === "brewer") { AL.showAll = false; alongOptions(); }
   });
   form.addEventListener("click", (e) => { if (e.target.closest("[data-step]")) setTimeout(markAllEmpty, 0); });
-  $("#bagSel").addEventListener("change", () => { paintProcess(); paintBagExtras(); });
+  $("#bagSel").addEventListener("change", () => { paintProcess(); setTimeout(paintBagExtras, 0); });
 
   const along = $("#along");
   along.open = LS.get("brewlog:alongOpen") === "1";
@@ -1930,7 +1931,10 @@ function viewBrew(id) {
         ${dd && dd.frozen ? `<span>${dd.total} since roast, ${dd.frozen} frozen</span>` : ""}
         ${bag?.roastType ? `<span>${esc(String(bag.roastType).toLowerCase())} roast</span>` : ""}
       </div>
-      ${originLine(bag) ? `<div class="beanline">${esc(originLine(bag))}</div>` : ""}
+      ${originLine(bag) || bag.link || bag.brewNotes ? `<div class="beanline">${esc(originLine(bag) || "")}${bag.link || bag.brewNotes ? `<span class="bagacts">
+        ${bag.link ? `<a class="bagicon" href="${esc(bag.link)}" target="_blank" rel="noopener" title="Open the roaster's page" aria-label="Open the roaster's page"><svg viewBox="0 0 24 24"><path d="M10 14L20 4M15 4h5v5M18 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"/></svg></a>` : ""}
+        ${bag.brewNotes ? `<button class="bagicon" type="button" data-guide="${bag.id}" aria-expanded="false" title="Roaster's brew notes" aria-label="Roaster's brew notes"><svg viewBox="0 0 24 24"><path d="M7 4h10a1 1 0 0 1 1 1v15l-6-3-6 3V5a1 1 0 0 1 1-1zM9 9h6M9 13h4"/></svg></button>` : ""}
+      </span>` : ""}</div>` : ""}
       ${bag?.notes ? `<div class="beannotes">${esc(bag.notes)}</div>` : ""}
       <div class="score" style="margin-top:12px">
         <b class="${isNum(b.rating) ? "" : "off"}">${isNum(b.rating) ? b.rating : "&ndash;"}</b><small>/10</small>
@@ -2065,7 +2069,7 @@ function viewBags() {
     return `<article class="item">
       <span class="iname">${esc(bag.beans || "Untitled beans")}</span>
       ${line1 ? `<div class="beanline">${esc(line1)}</div>` : ""}
-      ${originLine(bag) ? `<div class="beanline">${esc(originLine(bag))}</div>` : ""}
+      ${originLine(bag) || bag.link || bag.brewNotes ? `<div class="beanline">${esc(originLine(bag) || "")}${bag.link || bag.brewNotes ? `<span class="bagacts">${bag.link ? `<a class="bagicon" href="${esc(bag.link)}" target="_blank" rel="noopener" title="Open the roaster's page" aria-label="Open the roaster's page"><svg viewBox="0 0 24 24"><path d="M10 14L20 4M15 4h5v5M18 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"/></svg></a>` : ""}${bag.brewNotes ? `<button class="bagicon" type="button" data-guide="${bag.id}" aria-expanded="false" title="Roaster's brew notes" aria-label="Roaster's brew notes"><svg viewBox="0 0 24 24"><path d="M7 4h10a1 1 0 0 1 1 1v15l-6-3-6 3V5a1 1 0 0 1 1-1zM9 9h6M9 13h4"/></svg></button>` : ""}</span>` : ""}</div>` : ""}
       <div class="beanmeta">
         ${dd ? `<span class="chip">${dd.adjusted} day${dd.adjusted === 1 ? "" : "s"} off roast</span>` : ""}
         ${isFrozen(bag) ? `<span class="chip frozen">Frozen since ${fmtDate(bag.freezes.at(-1).start)}</span>` : ""}
@@ -2073,11 +2077,7 @@ function viewBags() {
         <span>${n} brew${n === 1 ? "" : "s"}</span>
       </div>
 ${bag.notes ? `<div class="beannotes">${esc(bag.notes)}</div>` : ""}
-      ${bag.link || bag.brewNotes ? `<div class="bagacts">
-        ${bag.link ? `<a class="bagicon" href="${esc(bag.link)}" target="_blank" rel="noopener" title="Open the roaster's page" aria-label="Open the roaster's page"><svg viewBox="0 0 24 24"><path d="M10 14L20 4M15 4h5v5M18 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5"/></svg></a>` : ""}
-        ${bag.brewNotes ? `<button class="bagicon" type="button" data-guide="${bag.id}" aria-expanded="false" title="Roaster's brew notes" aria-label="Roaster's brew notes"><svg viewBox="0 0 24 24"><path d="M7 4h10a1 1 0 0 1 1 1v15l-6-3-6 3V5a1 1 0 0 1 1-1zM9 9h6M9 13h4"/></svg></button>` : ""}
-      </div>
-      ${bag.brewNotes ? `<div class="roastguide" id="guide-${bag.id}" hidden>${esc(bag.brewNotes)}</div>` : ""}` : ""}
+      ${bag.brewNotes ? `<div class="roastguide" id="guide-${bag.id}" hidden>${esc(bag.brewNotes)}</div>` : ""}
       <div class="acts">
         ${bag.finished ? "" : isFrozen(bag) ? `<button class="linkbtn" data-act="thaw" data-id="${bag.id}" type="button">Thaw</button>` : `<button class="linkbtn" data-act="freeze" data-id="${bag.id}" type="button">Freeze</button>`}
         <button class="linkbtn" data-act="edit" data-id="${bag.id}" type="button">Edit</button>
