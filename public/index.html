@@ -229,17 +229,6 @@ select::-ms-expand{display:none}
 
 /* actions */
 .saverow{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
-.pnav{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line);margin-top:16px}
-.pnav button{all:unset;cursor:pointer;padding:11px 2px;min-width:0}
-.pnav button:last-child{text-align:right;border-left:1px solid var(--line);padding-left:12px}
-.pnav button:first-child{padding-right:12px}
-.pnav button[disabled]{cursor:default;opacity:.4}
-.pnav .dir{display:block;font-size:var(--t-lab);color:var(--faint)}
-.pnav .what{display:block;margin-top:2px;font-size:var(--t-detail);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pnav .when{display:block;font-size:12px;color:var(--faint)}
-.pnav .r{font-weight:600}
-.pnav .r.hi{color:var(--accent-text)}
-.pnav .r.lo{color:var(--muted)}
 .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 .btn{all:unset;box-sizing:border-box;cursor:pointer;text-align:center;padding:12px 15px;border-radius:2px;
   border:1px solid var(--accent);color:var(--accent);font-size:13.5px;font-weight:600;display:inline-block}
@@ -723,6 +712,93 @@ body[data-view="bags"] .list .item .bagicon.on{color:#C87A16}
 .bagcard .sbag{padding-bottom:0}
 .bagcard .bagpick{margin-bottom:1px}
 .bagcard .beanmeta{margin-top:6px}
+
+/* ===================================================================
+   History v2: quiet list, rating chips, month stepper + grid
+   Brew: arrows in the band, one fixed color per section
+   =================================================================== */
+main .hfilt{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 -8px 4px 0}
+main .hbag{position:relative;display:inline-flex;align-items:center;min-width:0;color:var(--accent-text)}
+main .hbag select{appearance:none;-webkit-appearance:none;border:0;background:none;padding:0 18px 0 0;min-height:44px;min-width:0;max-width:170px;field-sizing:content;
+  font-size:15px;font-weight:600;color:inherit;cursor:pointer;text-overflow:ellipsis}
+main .hbag .chev{position:absolute;right:0;color:inherit;width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+main .hmonth{position:relative;display:flex;align-items:center;flex:none}
+main .hstep{all:unset;cursor:pointer;width:40px;height:44px;display:grid;place-items:center;color:var(--ink)}
+main .hstep.sm{width:32px;height:32px}
+main .hstep[disabled]{cursor:default;color:var(--ghost)}
+main .hstep svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+main .hstep.sm svg{width:15px;height:15px}
+main .hmlabel{all:unset;cursor:pointer;min-height:44px;display:flex;align-items:center;padding:0 4px;font-size:15px;font-weight:600;color:var(--accent-text);white-space:nowrap}
+main .hgrid{position:absolute;right:8px;top:calc(100% + 2px);z-index:5;width:224px;box-sizing:border-box;padding:6px 8px 4px;border-radius:12px;
+  background:var(--surface);box-shadow:0 10px 28px rgba(20,22,31,.16),0 2px 6px rgba(20,22,31,.08);display:flex;flex-direction:column;gap:4px}
+main .hgy{display:flex;align-items:center;justify-content:space-between}
+main .hgy b{font-size:14px;font-weight:700}
+main .hgm{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:2px}
+main .hgm button{all:unset;cursor:pointer;height:32px;border-radius:8px;display:grid;place-items:center;font-size:13.5px;font-weight:550;color:var(--ink)}
+main .hgm button:hover{background:var(--hair)}
+main .hgm button[disabled]{cursor:default;color:var(--ghost);background:none}
+main .hgm button.on{background:var(--accent-soft);color:var(--accent-text);font-weight:700}
+main .hgall{all:unset;cursor:pointer;align-self:center;min-height:32px;display:flex;align-items:center;font-size:13px;font-weight:600;color:var(--accent-text)}
+main .hlist{display:flex;flex-direction:column}
+main .hlist .hrow{all:unset;cursor:pointer;display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--line);background:none}
+main .hlist .hrow:last-child{border-bottom:0}
+main .hlist .hrow:hover{background:none}
+main .hlist .hrow:hover .h1{color:var(--accent-text)}
+main .hlist .hbody{display:flex;flex-direction:column;gap:2px;flex:1 1 auto;min-width:0;border:0;border-radius:0;background:none;overflow:visible}
+main .hlist .h1{font-size:15.5px;font-weight:600}
+main .hlist .h2{font-size:13px;color:var(--muted)}
+main .hlist .hdate{font-size:12.5px;color:var(--muted);flex:none;align-self:flex-start;padding-top:3px}
+main .hlist .hrate{width:auto;min-width:36px;height:28px;box-sizing:border-box;padding:0 8px;flex:none;display:inline-flex;align-items:center;justify-content:center;
+  border-radius:14px;font-size:15px;font-weight:700;font-stretch:100%;text-align:center;background:#EEF0F4;color:var(--ink)}
+main .hlist .hrate.hi{background:var(--accent-soft);color:var(--accent-text)}
+main .hlist .hrate.lo{background:#F4F4F6;color:var(--muted)}
+main .hlist .hrate.none{background:none;color:var(--ghost)}
+main .hnone{padding:24px 0;text-align:center;font-size:13.5px}
+
+/* brew: older / newer in the band */
+body[data-view="brew"] .bandfull{align-items:center}
+body[data-view="brew"] .bandright{align-items:center}
+.bnav{display:flex;align-items:center;gap:4px}
+.bstep{all:unset;cursor:pointer;width:32px;height:32px;border-radius:16px;display:grid;place-items:center;background:var(--hair);color:var(--ink)}
+.bstep[disabled]{cursor:default;color:var(--ghost)}
+.bstep svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round}
+.bpos{font-size:12.5px;color:var(--muted);min-width:38px;text-align:center}
+
+/* brew: each section keeps its own color; the diagnosis rides in a pill */
+body main .sect.snext,body main .sect.sknow,body main .sect.srx{margin:18px -16px 0;padding:8px 16px;font-size:12.5px;font-weight:650;letter-spacing:.04em;text-transform:uppercase}
+body main .sect.snext{background:#E7ECFF;color:#2340CC;border-color:#C9D5FF}
+body main .sect.sknow{background:#E2E9E8;color:#34524F;border-color:#CCD8D6}
+body main .sect.srx{background:#EEF0F4;color:#3F4453;border-color:#E1E4EB}
+body main .sect.srx .chev{color:inherit;stroke:currentColor}
+body main .sect.snext+.srow,body main .sect.sknow+.srow{padding-top:12px}
+body main .snext .diag{padding:2px 9px;border-radius:11px;font-size:12.5px;font-weight:650;letter-spacing:0;text-transform:none;white-space:nowrap}
+body main .snext .diag.under{background:#FAEEDA;color:#854F0B}
+body main .snext .diag.over{background:#F7E4DA;color:#8F4526}
+body main .snext .diag.flat{background:#E3F5EA;color:#1B7A45}
+body main .snext .diag.none{background:#FFFFFF;color:#6E7384}
+main .change.over{background:#F7E4DA;color:#8F4526}
+main .knowrow .linkbtn{color:#34524F}
+main .knowrow .chip{background:#E2E9E8;color:#34524F}
+
+/* dark */
+:root[data-theme="dark"] main .hlist .hrate,html:not([data-theme="light"]) main .hlist .hrate{background:#1F232E;color:var(--ink)}
+:root[data-theme="dark"] main .hlist .hrate.hi,html:not([data-theme="light"]) main .hlist .hrate.hi{background:#1E2A55;color:#B7C7FF}
+:root[data-theme="dark"] main .hlist .hrate.lo,html:not([data-theme="light"]) main .hlist .hrate.lo{background:#171A22;color:#8A90A2}
+:root[data-theme="dark"] main .hlist .hrate.none,html:not([data-theme="light"]) main .hlist .hrate.none{background:none;color:#4F5566}
+:root[data-theme="dark"] main .hlist .hrow,html:not([data-theme="light"]) main .hlist .hrow{border-bottom-color:#2A2F3D;background:none}
+:root[data-theme="dark"] main .hlist .hbody,html:not([data-theme="light"]) main .hlist .hbody{background:none;border:0}
+:root[data-theme="dark"] main .hgrid,html:not([data-theme="light"]) main .hgrid{background:#171A23;box-shadow:0 12px 32px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.06)}
+:root[data-theme="dark"] .bstep,html:not([data-theme="light"]) .bstep{background:#1F232E}
+:root[data-theme="dark"] body main .sect.snext,html:not([data-theme="light"]) body main .sect.snext{background:#1B2447;color:#AFC0FF;border-color:#2E3E7A}
+:root[data-theme="dark"] body main .sect.sknow,html:not([data-theme="light"]) body main .sect.sknow{background:#111A1B;color:#86A6A1;border-color:#1E2B2C}
+:root[data-theme="dark"] body main .sect.srx,html:not([data-theme="light"]) body main .sect.srx{background:#1B1F2A;color:#B5BACB;border-color:#2A2F3D}
+:root[data-theme="dark"] body main .snext .diag.under,html:not([data-theme="light"]) body main .snext .diag.under{background:#3A2A0B;color:#F0C777}
+:root[data-theme="dark"] body main .snext .diag.over,html:not([data-theme="light"]) body main .snext .diag.over{background:#3A1F14;color:#F0A986}
+:root[data-theme="dark"] body main .snext .diag.flat,html:not([data-theme="light"]) body main .snext .diag.flat{background:#0F2A1C;color:#7DDBA3}
+:root[data-theme="dark"] body main .snext .diag.none,html:not([data-theme="light"]) body main .snext .diag.none{background:#0F1117;color:#9AA0B2}
+:root[data-theme="dark"] main .change.over,html:not([data-theme="light"]) main .change.over{background:#3A1F14;color:#F0A986}
+:root[data-theme="dark"] main .knowrow .linkbtn,html:not([data-theme="light"]) main .knowrow .linkbtn{color:#86A6A1}
+:root[data-theme="dark"] main .knowrow .chip,html:not([data-theme="light"]) main .knowrow .chip{background:#111A1B;color:#86A6A1}
 </style>
 </head>
 <body>
@@ -1984,7 +2060,7 @@ function viewBrew(id) {
   // The recipe stays folded the way it was left last time.
   const rxOpen = (() => { try { return localStorage.getItem("dialed.rx") !== "0"; } catch { return true; } })();
 
-  setBand("Brew", `<span class="bandnote">${fmtDate(b.date, true)}</span>`, false);
+  setBand("Brew", `<span class="bandnote">${fmtDate(b.date, true)}</span>${navPair(b)}`, false);
   main.innerHTML = `
     <div class="srow">
       <span class="iname">${esc(bagName(bag))}</span>
@@ -2004,7 +2080,7 @@ function viewBrew(id) {
       </div>
     </div>
 
-    <div class="sect ${diag.kind}"><span>next time</span><span class="diag">${esc(diag.label)}</span></div>
+    <div class="sect snext"><span>next time</span><span class="diag ${b.taste ? diag.kind : "none"}">${esc(diag.label)}</span></div>
     <div class="srow">
       <div class="leadline"><span class="lead">${esc(a.lead.text)}</span>${a.lead.swap ? `<span class="change ${diag.kind}">${a.lead.swap.from} &rarr; ${a.lead.swap.to}</span>` : ""}</div>
       ${a.lead.why ? `<p class="why">${esc(a.lead.why)}</p>` : ""}
@@ -2012,11 +2088,11 @@ function viewBrew(id) {
         ${a.also.map((t) => `<div class="tip"><b>${esc(t.text)}${t.swap ? ` Try ${t.swap.to}.` : ""}</b>${t.why ? `<span>${esc(t.why)}</span>` : ""}</div>`).join("")}` : ""}
     </div>
 
-    ${a.notes.length || bestLine ? `<div class="sect flat"><span>worth knowing about these beans</span></div>
-    <div class="srow">${a.notes.map((n) => `<p class="note">${esc(n)}</p>`).join("")}${bestLine}</div>` : ""}
+    ${a.notes.length || bestLine ? `<div class="sect sknow"><span>worth knowing about these beans</span></div>
+    <div class="srow knowrow">${a.notes.map((n) => `<p class="note">${esc(n)}</p>`).join("")}${bestLine}</div>` : ""}
 
     <details class="rx" id="rxBox" ${rxOpen ? "open" : ""}>
-      <summary><div class="sect"><span>recipe</span><svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></summary>
+      <summary><div class="sect srx"><span>recipe</span><svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></div></summary>
     <div class="srow"><dl class="facts">
       ${fact("grind", [b.grind, b.grinder && `on ${b.grinder}`].filter(Boolean).join(" "))}
       ${fact("coffee", isNum(b.dose) ? b.dose + " g" : "")}
@@ -2041,8 +2117,7 @@ function viewBrew(id) {
       <button class="btn primary" type="button" data-go="log/again/${b.id}">Brew again with changes</button>
       <button class="btn" type="button" data-go="log/edit/${b.id}">Edit</button>
       <button class="btn danger" id="delBrew" type="button">Delete</button>
-    </div>
-    ${navPair(b)}`;
+    </div>`;
   const rxBox = $("#rxBox");
   if (rxBox) rxBox.addEventListener("toggle", () => { try { localStorage.setItem("dialed.rx", rxBox.open ? "1" : "0"); } catch {} });
   $("#delBrew").onclick = (e) => {
@@ -2052,29 +2127,30 @@ function viewBrew(id) {
   };
 }
 
-// The arrows walk the same list you came from, so a bag filter still holds.
+// The arrows walk the same list you came from, so the bag and month filters still hold.
+let historyBag = "all";
+let historyMonth = "all";   // "all" or "YYYY-MM"
+let historyGrid = null;     // year shown in the open month grid, or null when closed
+const monthOf = (d) => (d || "").slice(0, 7);
+const monthName = (ym, style = "long") => { const [y, m] = ym.split("-").map(Number); return new Date(y, m - 1, 1).toLocaleDateString(undefined, style === "long" ? { month: "long", year: "numeric" } : { month: "short" }); };
+function histBagList() { return historyBag === "all" ? brews() : brews().filter((x) => x.bagId === historyBag); }
+function histMonths() { return [...new Set(histBagList().map((x) => monthOf(x.date)).filter(Boolean))]; } // newest first
+function histList() { const l = histBagList(); return historyMonth === "all" ? l : l.filter((x) => monthOf(x.date) === historyMonth); }
+const ARROW = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d === "l" ? "M15 6l-6 6 6 6" : "M9 6l6 6-6 6"}"/></svg>`;
+
 function navPair(b) {
-  const list = historyBag === "all" ? brews() : brews().filter((x) => x.bagId === historyBag);
+  const list = histList();
   const i = list.findIndex((x) => x.id === b.id);
   if (i === -1 || list.length < 2) return "";
   const newer = i > 0 ? list[i - 1] : null;   // brews() runs newest first
   const older = i < list.length - 1 ? list[i + 1] : null;
-  const cell = (x, dir) => {
-    if (!x) return `<button type="button" disabled><span class="dir">${dir === "older" ? "\u2039 older" : "newer \u203a"}</span><span class="what">none</span></button>`;
-    const bag = S.records[x.bagId];
-    const cls = !isNum(x.rating) ? "" : x.rating >= 8 ? "hi" : x.rating < 5 ? "lo" : "";
-    return `<button type="button" data-go="brew/${x.id}">
-      <span class="dir">${dir === "older" ? "\u2039 older" : "newer \u203a"}</span>
-      <span class="what">${esc(bagName(bag))} \u00b7 <span class="r ${cls}">${isNum(x.rating) ? x.rating : "\u2013"}</span></span>
-      <span class="when">${fmtDate(x.date, true)}</span></button>`;
-  };
-  return `<nav class="pnav" aria-label="Other brews">${cell(older, "older")}${cell(newer, "newer")}</nav>`;
+  const btn = (x, dir) => `<button type="button" class="bstep" ${x ? `data-go="brew/${x.id}"` : "disabled"} aria-label="${dir === "l" ? "Older brew" : "Newer brew"}">${ARROW(dir)}</button>`;
+  return `<nav class="bnav" aria-label="Other brews">${btn(older, "l")}<span class="bpos">${i + 1} / ${list.length}</span>${btn(newer, "r")}</nav>`;
 }
 
 // =====================================================================
 // History
 // =====================================================================
-let historyBag = "all";
 function viewHistory() {
   const all = brews();
   if (!all.length) {
@@ -2084,24 +2160,65 @@ function viewHistory() {
   }
   const bagsUsed = [...new Set(all.map((b) => b.bagId))].map((id) => S.records[id]).filter(Boolean);
   if (historyBag !== "all" && !bagsUsed.some((b) => b.id === historyBag)) historyBag = "all";
-  const list = historyBag === "all" ? all : all.filter((b) => b.bagId === historyBag);
-  setBand("History", `<span class="bandnote">${all.length} brew${all.length === 1 ? "" : "s"}</span>`, false);
+  const months = histMonths();
+  if (historyMonth !== "all" && !months.includes(historyMonth)) historyMonth = "all";
+  const list = histList();
+  const mi = months.indexOf(historyMonth);
+  const olderM = historyMonth === "all" ? months[0] : months[mi + 1];
+  const newerM = historyMonth === "all" ? null : months[mi - 1];
+  setBand("History", `<span class="bandnote">${list.length === all.length ? `${all.length} brew${all.length === 1 ? "" : "s"}` : `${list.length} of ${all.length} brews`}</span>`, false);
+
+  let grid = "";
+  if (historyGrid != null) {
+    const years = months.map((m) => Number(m.slice(0, 4)));
+    const minY = Math.min(...years), maxY = Math.max(...years);
+    const y = historyGrid;
+    grid = `<div class="hgrid" role="dialog" aria-label="Pick a month">
+      <div class="hgy"><button type="button" class="hstep sm" data-gy="${y - 1}" ${y <= minY ? "disabled" : ""} aria-label="Previous year">${ARROW("l")}</button>
+        <b>${y}</b><button type="button" class="hstep sm" data-gy="${y + 1}" ${y >= maxY ? "disabled" : ""} aria-label="Next year">${ARROW("r")}</button></div>
+      <div class="hgm">${Array.from({ length: 12 }, (_, k) => { const ym = `${y}-${pad2(k + 1)}`; return `<button type="button" data-gm="${ym}" class="${ym === historyMonth ? "on" : ""}" ${months.includes(ym) ? "" : "disabled"}>${monthName(ym, "short")}</button>`; }).join("")}</div>
+      <button type="button" class="hgall" data-gm="all">All months</button></div>`;
+  }
+
   main.innerHTML = `
-    <div class="srow"><label class="selline"><span>showing</span>
-      <select id="hBag" aria-label="Filter by bag"><option value="all">all bags</option>
-      ${bagsUsed.map((g) => `<option value="${g.id}" ${g.id === historyBag ? "selected" : ""}>${esc(bagName(g))}</option>`).join("")}</select></label></div>
-    <div class="srow">${list.map((b) => {
-      const bits = [b.grind && `grind ${b.grind}`, ratio(b) && ratioStr(ratio(b)), tempStr(b.tempF), mmss(b.timeS)].filter(Boolean).join(", ");
+    <div class="hfilt">
+      <label class="hbag"><span class="sr">Filter by bag</span><select id="hBag"><option value="all">All bags</option>
+        ${bagsUsed.map((g) => `<option value="${g.id}" ${g.id === historyBag ? "selected" : ""}>${esc(bagName(g))}</option>`).join("")}</select>${CHEV}</label>
+      <div class="hmonth">
+        <button type="button" class="hstep" data-gm="${olderM || ""}" ${olderM ? "" : "disabled"} aria-label="Previous month">${ARROW("l")}</button>
+        <button type="button" class="hmlabel" id="hMonth" aria-expanded="${historyGrid != null}">${historyMonth === "all" ? "All months" : monthName(historyMonth)}</button>
+        <button type="button" class="hstep" data-gm="${newerM || ""}" ${newerM ? "" : "disabled"} aria-label="Next month">${ARROW("r")}</button>
+        ${grid}
+      </div>
+    </div>
+    <div class="hlist">${list.length ? list.map((b) => {
+      const bits = [b.grind && `grind ${b.grind}`, ratio(b) && ratioStr(ratio(b)), tempStr(b.tempF), mmss(b.timeS)].filter(Boolean).join(" \u00b7 ");
       const cls = !isNum(b.rating) ? "none" : b.rating >= 8 ? "hi" : b.rating < 5 ? "lo" : "";
       const head = historyBag === "all" ? bagName(S.records[b.bagId]) : (tasteText(b.taste) || "no taste placed");
-      const sub = [historyBag === "all" ? tasteText(b.taste) : "", bits].filter(Boolean).join(". ") || "no recipe details";
+      const sub = [historyBag === "all" ? tasteText(b.taste) : "", bits].filter(Boolean).join(" \u2014 ") || "no recipe details";
       return `<button type="button" class="hrow" data-go="brew/${b.id}">
         <span class="hrate ${cls}">${isNum(b.rating) ? b.rating : "&ndash;"}</span>
         <span class="hbody"><span class="h1">${esc(head)}</span><span class="h2">${esc(sub)}</span></span>
         <span class="hdate">${fmtDate(b.date)}</span></button>`;
-    }).join("")}</div>`;
-  $("#hBag").onchange = (e) => { historyBag = e.target.value; viewHistory(); };
+    }).join("") : `<p class="muted hnone">No brews in this month.</p>`}</div>`;
+
+  $("#hBag").onchange = (e) => { historyBag = e.target.value; historyGrid = null; viewHistory(); };
+  $("#hMonth").onclick = () => {
+    historyGrid = historyGrid != null ? null : Number((historyMonth === "all" ? months[0] : historyMonth).slice(0, 4));
+    viewHistory();
+  };
+  $$(".hfilt [data-gm]").forEach((el) => el.onclick = () => { historyMonth = el.dataset.gm; historyGrid = null; viewHistory(); });
+  $$(".hfilt [data-gy]").forEach((el) => el.onclick = () => { historyGrid = Number(el.dataset.gy); viewHistory(); });
 }
+// The month grid closes on a tap outside it or on Escape.
+document.addEventListener("click", (e) => {
+  if (historyGrid == null || !e.target.isConnected || e.target.closest(".hmonth")) return;
+  historyGrid = null;
+  if (document.body.dataset.view === "history") viewHistory();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && historyGrid != null && document.body.dataset.view === "history") { historyGrid = null; viewHistory(); $("#hMonth")?.focus(); }
+});
 
 // =====================================================================
 // Bags
