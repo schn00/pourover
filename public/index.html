@@ -773,12 +773,12 @@ body main .sect.srx .chev{color:inherit;stroke:currentColor}
 body main .sect.snext+.srow,body main .sect.sknow+.srow{padding-top:12px}
 body main .snext .diag{display:inline-flex;align-items:center;gap:6px;background:#FFFFFF;color:#3F4453;padding:2px 9px;border-radius:11px;font-size:12.5px;font-weight:650;letter-spacing:0;text-transform:none;white-space:nowrap}
 body main .snext .diag::before{content:"";width:7px;height:7px;border-radius:50%;flex:none;background:var(--muted)}
-body main .snext .diag.under::before{background:var(--sour-deep)}
+body main .snext .diag.under::before{background:#7C5CD6}
 body main .snext .diag.over::before{background:var(--warn)}
 body main .snext .diag.flat::before{background:var(--good)}
 body main .snext .diag.none::before{display:none}
-body main .change,body main .change.under,body main .change.over,body main .change.flat{background:var(--accent-soft);color:var(--accent-text)}
-body main .subrule,body main .subrule.under,body main .subrule.over,body main .subrule.flat{color:var(--muted);border-bottom-color:var(--line);text-transform:uppercase;letter-spacing:.04em;font-size:12px}
+body main .change,body main .change.under,body main .change.over,body main .change.flat{background:var(--warm-soft);color:var(--warm-text)}
+body main .subrule,body main .subrule.under,body main .subrule.over,body main .subrule.flat{color:var(--warm-text);border-bottom-color:var(--warm-line);text-transform:uppercase;letter-spacing:.04em;font-size:12px}
 body[data-view="brew"] main .beanmeta .chip{background:#EEF0F4;color:var(--ink)}
 main .hlist .h2{color:var(--faint);font-size:12.5px}
 main .knowrow .linkbtn{color:#34524F}
@@ -800,6 +800,7 @@ main .knowrow .chip{background:#E2E9E8;color:#34524F}
 :root[data-theme="dark"] main .knowrow .chip,html:not([data-theme="light"]) main .knowrow .chip{background:#111A1B;color:#86A6A1}
 :root[data-theme="dark"] body main .snext .diag,html:not([data-theme="light"]) body main .snext .diag{background:#0F1117;color:#C3C8D6}
 :root[data-theme="dark"] body[data-view="brew"] main .beanmeta .chip,html:not([data-theme="light"]) body[data-view="brew"] main .beanmeta .chip{background:#1F232E;color:var(--ink)}
+:root[data-theme="dark"] body main .snext .diag.under::before,html:not([data-theme="light"]) body main .snext .diag.under::before{background:#B49CFF}
 </style>
 </head>
 <body>
