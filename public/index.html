@@ -68,6 +68,8 @@ p{margin:0}
 .status[data-s="synced"] i{background:var(--good)}
 .status[data-s="saving"] i{background:var(--accent)}
 .status[data-s="offline"] i,.status[data-s="error"] i,.status[data-s="signin"] i{background:var(--warn)}
+.status svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.status[data-s="signin"],.status[data-s="offline"],.status[data-s="error"]{color:var(--warn)}
 .iconbtn{display:grid;place-items:center;width:30px;height:30px;border:0;background:none;cursor:pointer;color:var(--muted)}
 .iconbtn:hover{color:var(--ink)}
 .iconbtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
