@@ -15,7 +15,7 @@ const SCHEMA = 1;
 const MAX_CHANGES = 500;
 const MAX_RECORD_BYTES = 16 * 1024;
 const MAX_BODY_BYTES = 4 * 1024 * 1024;
-const TYPES = new Set(["bag", "brew", "settings"]);
+const TYPES = new Set(["bag", "brew", "settings" , "recipe"]);
 
 const SESSION_COOKIE = "dialed_session";
 const SESSION_TTL = 90 * 24 * 3600; // seconds
