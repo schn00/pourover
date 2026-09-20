@@ -2241,7 +2241,11 @@ function viewBags() {
       });
     }
   }, 0);
-  const act = activeBags();
+  // Active bags run by when you last brewed them; bags not brewed yet follow, newest roast first.
+  const lastBrew = {};
+  brews().forEach((x) => { if (!(x.bagId in lastBrew)) lastBrew[x.bagId] = x; }); // brews() runs newest first
+  const brewOrder = (x) => { const l = lastBrew[x.id]; return l ? `${l.date || ""}|${String(l.createdAt || 0).padStart(15, "0")}` : ""; };
+  const act = activeBags().sort((x, y) => brewOrder(y).localeCompare(brewOrder(x)) || byRoastDesc(x, y));
   const done = allBags().filter((b) => b.finished).sort(byRoastDesc);
   const recentId = brews().slice().sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")) || (b.createdAt || 0) - (a.createdAt || 0))[0]?.bagId;
   const card = (bag) => {
