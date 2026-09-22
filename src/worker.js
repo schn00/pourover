@@ -138,10 +138,11 @@ function valid(rec) {
 // first errors or comes back nearly empty.
 
 const SCAN_MODELS = ["@cf/meta/llama-4-scout-17b-16e-instruct", "@cf/google/gemma-3-12b-it"];
-const PAGE_MODELS = ["@cf/meta/llama-3.1-8b-instruct-fp8-fast", "@cf/google/gemma-3-12b-it"];
+const PAGE_MODELS = ["@cf/google/gemma-3-12b-it", "@cf/meta/llama-3.1-8b-instruct-fp8-fast"]; // reading product pages
+const SITE_MODELS = ["@cf/meta/llama-3.1-8b-instruct-fp8-fast", "@cf/google/gemma-3-12b-it"]; // naming a roaster's website
 const MAX_SCAN_IMAGES = 2;
 const MAX_IMAGE_CHARS = 3 * 1024 * 1024;
-const MAX_PAGE_TEXT = 9000;
+const MAX_PAGE_TEXT = 10000;
 const ROAST_TYPES = ["Light", "Medium-light", "Medium", "Medium-dark", "Dark"];
 const CAP_MESSAGE = "Scanning is used up for today. It resets at 00:00 UTC (8 p.m. in New York). Fill this one in by hand for now.";
 const PAGE_UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1";
@@ -170,7 +171,7 @@ Return only a JSON object with these keys:
 "producer": the farm, producer, cooperative or washing station
 "elevation": the elevation in meters above sea level as a number, or ""
 "decaf": true or false
-"brewNotes": any brew recipe or brewing guidance printed on the bag, or ""
+"brewNotes": a brew recipe printed on the bag, in one short line with its numbers, or "". If there are several, use the pour-over one.
 "url": a full web address printed on the bag, or ""
 "website": the roaster's website domain printed on the bag (for example "example.com"), or ""
 Use "" for anything that isn't visible. Do not guess.`;
@@ -247,7 +248,7 @@ function roasterTokens(s) {
 
 async function findRoasterSite(roaster, env) {
   const tried = new Set();
-  for (const model of PAGE_MODELS) {
+  for (const model of SITE_MODELS) {
     let answer = "";
     try {
       const raw = await env.AI.run(model, {
@@ -304,48 +305,79 @@ async function readProductPage(href) {
   const u = safeUrl(href);
   if (!u) throw httpError(400, "That doesn't look like a web address.");
 
-  const shop = await shopifyProduct(u);
-  if (shop) return shop;
+  // Shopify's product data carries only the main description; many themes put
+  // origin, elevation, process and brew recipes in page sections outside it.
+  // So read both and combine them.
+  const [shop, pageRes] = await Promise.all([
+    shopifyProduct(u),
+    fetchWithTimeout(u.href, "text/html,application/xhtml+xml").catch(() => null),
+  ]);
 
-  let res;
-  try {
-    res = await fetchWithTimeout(u.href, "text/html,application/xhtml+xml");
-  } catch {
-    throw httpError(422, "That page took too long to open. Fill the rest in by hand.");
+  let html = "";
+  let finalUrl = u;
+  if (pageRes && pageRes.ok) {
+    html = (await pageRes.text()).slice(0, 2_000_000);
+    finalUrl = safeUrl(pageRes.url) || u;
   }
-  if (!res.ok) throw httpError(422, `That page wouldn't open for the app (error ${res.status}). Fill the rest in by hand.`);
-  const html = (await res.text()).slice(0, 2_000_000);
-  const finalUrl = safeUrl(res.url) || u;
-
+  let shop2 = shop;
   // Redirected (a QR short link, say) onto a Shopify product page.
-  if (finalUrl.href !== u.href && /cdn\.shopify\.com|Shopify\./.test(html)) {
-    const shop2 = await shopifyProduct(finalUrl);
-    if (shop2) return shop2;
+  if (!shop2 && html && finalUrl.href !== u.href && /cdn\.shopify\.com|Shopify\./.test(html)) shop2 = await shopifyProduct(finalUrl);
+
+  if (!html && !shop2) {
+    if (!pageRes) throw httpError(422, "That page took too long to open. Fill the rest in by hand.");
+    throw httpError(422, `That page wouldn't open for the app (error ${pageRes.status}). Fill the rest in by hand.`);
   }
 
-  const meta = metaTags(html);
-  const p = jsonLdProducts(html)[0] || {};
-  const brand = typeof p.brand === "string" ? p.brand : (p.brand && p.brand.name) || meta["og:site_name"] || "";
-  const title = String(p.name || meta["og:title"] || "").trim();
+  const meta = html ? metaTags(html) : {};
+  const p = (html && jsonLdProducts(html)[0]) || {};
+  const brand = (shop2 && shop2.brand) || (typeof p.brand === "string" ? p.brand : (p.brand && p.brand.name) || meta["og:site_name"] || "");
+  const title = String((shop2 && shop2.title) || p.name || meta["og:title"] || "").trim();
   const props = [].concat(p.additionalProperty || []).map((x) => (x && x.name && x.value != null ? `${x.name}: ${x.value}` : "")).filter(Boolean);
 
-  let mainHtml = html;
-  const m = html.match(/<main[\s\S]*?<\/main>/i);
-  if (m && m[0].length > 500) mainHtml = m[0];
-  mainHtml = mainHtml.replace(/<(header|footer|nav)\b[\s\S]*?<\/\1>/gi, " ");
-
+  let pageText = "";
+  if (html) {
+    let mainHtml = html;
+    const m = html.match(/<main[\s\S]*?<\/main>/i);
+    if (m && m[0].length > 500) mainHtml = m[0];
+    mainHtml = mainHtml.replace(/<(header|footer|nav)\b[\s\S]*?<\/\1>/gi, " ");
+    pageText = htmlToText(mainHtml);
+  }
+  const details = detailLines([pageText, props.join("\n"), shop2 ? shop2.description : ""].join("\n"));
   const summary = meta["og:description"] || meta.description || "";
+
   const text = [
     title && `Title: ${title}`,
     brand && `Roaster: ${brand}`,
-    p.description && `Description: ${htmlToText(String(p.description))}`,
-    props.length && props.join("\n"),
-    summary && `Summary: ${summary}`,
-    `Page text:\n${htmlToText(mainHtml)}`,
+    shop2 && shop2.tags && `Tags: ${shop2.tags}`,
+    details && `Key details:\n${details}`,
+    shop2 && shop2.description ? `Description:\n${shop2.description}` : p.description ? `Description: ${htmlToText(String(p.description))}` : summary && `Summary: ${summary}`,
+    pageText && `Page text:\n${pageText}`,
   ].filter(Boolean).join("\n").slice(0, MAX_PAGE_TEXT);
 
   if (text.replace(/\s/g, "").length < 200) throw httpError(422, "That page didn't have readable details. Fill the rest in by hand.");
-  return { url: cleanProductUrl(finalUrl), title, brand, text };
+  return { url: shop2 ? shop2.url : cleanProductUrl(finalUrl), title, brand, text };
+}
+
+// Lines that name a coffee detail, each with the two lines after it (pages often
+// put the label and its value on separate lines, like "ELEVATION" then "2100 MASL").
+// These go first so they can't be cut off by the text limit.
+const DETAIL_WORDS = /\b(origin|country|region|zone|elevation|altitude|masl|m\.a\.s\.l|process(ing)?|variet(y|ies|al)|cultivar|producer|farm|estate|washing station|cooperative|co-op|tasting|notes|flavou?r|cup profile|recipe|brew|reccs?|grind|dose|ratio|v60|chemex|kalita|origami|pour[- ]?over|filter|aeropress|espresso|decaf|roast)\b/i;
+function detailLines(text) {
+  const lines = String(text || "").split("\n").map((l) => l.trim()).filter(Boolean);
+  const keep = new Set();
+  lines.forEach((l, i) => {
+    if (l.length > 240 || !DETAIL_WORDS.test(l)) return;
+    for (let j = i; j <= Math.min(i + 2, lines.length - 1); j++) if (lines[j].length <= 240) keep.add(j);
+  });
+  const out = [];
+  const seen = new Set();
+  for (const i of [...keep].sort((a, b) => a - b)) {
+    const k = lines[i].toLowerCase();
+    if (seen.has(k)) continue;
+    seen.add(k);
+    out.push(lines[i]);
+  }
+  return out.join("\n").slice(0, 3000);
 }
 
 async function shopifyProduct(u) {
@@ -357,16 +389,14 @@ async function shopifyProduct(u) {
     const data = await res.json();
     const p = data && data.product;
     if (!p || !p.title) return null;
-    const tags = Array.isArray(p.tags) ? p.tags.join(", ") : String(p.tags || "");
-    const text = [
-      `Title: ${p.title}`,
-      p.vendor && `Roaster: ${p.vendor}`,
-      p.product_type && `Type: ${p.product_type}`,
-      tags && `Tags: ${tags}`,
-      `Description:\n${htmlToText(String(p.body_html || ""))}`,
-    ].filter(Boolean).join("\n").slice(0, MAX_PAGE_TEXT);
     const handle = path.split("/products/")[1];
-    return { url: `${u.origin}/products/${handle}`, title: String(p.title), brand: String(p.vendor || ""), text };
+    return {
+      url: `${u.origin}/products/${handle}`,
+      title: String(p.title),
+      brand: String(p.vendor || ""),
+      tags: Array.isArray(p.tags) ? p.tags.join(", ") : String(p.tags || ""),
+      description: htmlToText(String(p.body_html || "")),
+    };
   } catch {
     return null;
   }
@@ -435,18 +465,32 @@ function bestMatch(items, want) {
 }
 
 async function extractFromPage(page, env) {
-  const system = `Extract the details of the coffee sold on this roaster's product page.
+  const instructions = `Extract the details of the coffee sold on this roaster's product page.
 Return only a JSON object with these keys: beans, roaster, roastType, notes, origin, region, process, variety, producer, elevation, decaf, brewNotes.
-beans: the coffee's name (the product title without size or weight). roaster: the roasting company. roastType: one of ${ROAST_TYPES.join(", ")}, or "". notes: the tasting notes, comma-separated. origin: the country. producer: the farm, producer, cooperative or washing station. elevation: meters above sea level as a number. decaf: true or false. brewNotes: any brew recipe or brewing guidance, kept short.
-Use "" for anything the page doesn't say. Do not guess.`;
+beans: the coffee's name (the product title without size or weight).
+roaster: the roasting company.
+roastType: one of ${ROAST_TYPES.join(", ")}, or "".
+notes: the tasting notes, comma-separated.
+origin: the country. If the page's "origin" is a region or town, put that in region and take the country from the title or elsewhere on the page.
+region: the region, zone or town.
+process: the processing method, as written.
+variety: the coffee variety or varieties.
+producer: the farm, producer, cooperative or washing station.
+elevation: as written on the page, with its units (for example "2100 MASL" or "6,000 ft").
+decaf: true or false.
+brewNotes: if the page gives brew recipes, the pour-over one (V60, Chemex, Kalita, Origami, April, Orea, or any pour-over or filter recipe), in one short line with its numbers (for example "V60: 20 g coffee, 300 g water, 205°F, grind 0.475 mm, 3:06"). Use an espresso or immersion recipe only if there's no pour-over one. "" if none.
+Use "" for anything the page doesn't say. Do not guess.
+
+Page:
+`;
   for (const model of PAGE_MODELS) {
     try {
       const raw = await env.AI.run(model, {
-        messages: [{ role: "system", content: system }, { role: "user", content: page.text }],
+        messages: [{ role: "user", content: instructions + page.text }],
         max_tokens: 600,
         temperature: 0.1,
       });
-      const fields = cleanFields(parseModelJson(raw), { page: true });
+      const fields = cleanFields(parseModelJson(raw), { page: true, title: page.title });
       if (countFields(fields)) return fields;
     } catch (err) {
       if (isCapError(err)) throw capError();
@@ -488,7 +532,10 @@ function str(v, max = 160) {
   return EMPTY_WORDS.test(s) ? "" : s.slice(0, max);
 }
 
-function cleanFields(o, { page = false } = {}) {
+const COUNTRIES = ["Ethiopia", "Kenya", "Colombia", "Brazil", "Guatemala", "Honduras", "Peru", "Rwanda", "Burundi", "Uganda", "Tanzania", "Panama", "Costa Rica", "El Salvador", "Nicaragua", "Mexico", "Bolivia", "Ecuador", "Yemen", "Indonesia", "Papua New Guinea", "China", "India", "Vietnam", "Thailand", "Myanmar", "Laos", "Timor-Leste", "East Timor", "Congo", "DR Congo", "Democratic Republic of the Congo", "Malawi", "Zambia", "Zimbabwe", "Cameroon", "Jamaica", "Haiti", "Dominican Republic", "Cuba", "Hawaii", "Taiwan", "Philippines", "Australia", "Venezuela"];
+const findCountry = (s) => COUNTRIES.find((c) => new RegExp(`\\b${c.replace(/ /g, "\\s+")}\\b`, "i").test(String(s || ""))) || "";
+
+function cleanFields(o, { page = false, title = "" } = {}) {
   o = o && typeof o === "object" ? o : {};
   const f = {};
   for (const k of ["beans", "roaster", "notes", "origin", "region", "process", "variety", "producer"]) {
@@ -505,6 +552,15 @@ function cleanFields(o, { page = false } = {}) {
   }
   const el = elevation(o.elevation);
   if (el) f.elevation = el;
+  // "Origin" given as a region or town: keep it as the region, and take the country from the title.
+  if (f.origin && !findCountry(f.origin)) {
+    if (!f.region) f.region = f.origin;
+    delete f.origin;
+  }
+  if (!f.origin) {
+    const c = findCountry(title) || findCountry(f.beans) || findCountry(f.region);
+    if (c) f.origin = c;
+  }
   if (o.decaf === true || /^(true|yes)$/i.test(String(o.decaf))) f.decaf = true;
   return f;
 }
@@ -522,10 +578,14 @@ function roastType(v) {
 }
 
 function elevation(v) {
-  const nums = String(v ?? "").replace(/(\d),(\d{3})/g, "$1$2").match(/\d{3,4}/g);
+  const s = String(v ?? "").toLowerCase().replace(/(\d),(\d{3})/g, "$1$2");
+  const nums = s.match(/\d{3,5}/g);
   if (!nums) return null;
   const n = nums.slice(0, 2).map(Number);
-  const m = Math.round(n.reduce((a, b) => a + b, 0) / n.length);
+  let m = n.reduce((a, b) => a + b, 0) / n.length;
+  // Feet, whether labeled or not: no coffee grows above about 3,000 m.
+  if (/\b(ft|feet|foot)\b|\d\s*['’]/.test(s) || (m > 3000 && m <= 10000)) m *= 0.3048;
+  m = Math.round(m);
   return m >= 200 && m <= 3000 ? m : null;
 }
 
