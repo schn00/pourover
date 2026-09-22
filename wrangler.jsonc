@@ -10,6 +10,9 @@
     "binding": "ASSETS"
   },
 
+  // Workers AI, for reading bag photos and product pages.
+  "ai": { "binding": "AI" },
+
   // SETUP.md step 1: paste the ID of the KV namespace you created.
   "kv_namespaces": [
     { "binding": "BREWLOG", "id": "a042fd6d371649db84a4f0f431dd152d" }
