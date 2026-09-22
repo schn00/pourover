@@ -7,6 +7,10 @@
 // session cookie. Every later request is just the cookie — no Google round trip,
 // no Cloudflare Access, and no domain of your own required.
 //
+// Sign-up alerts: the first time a new email signs in, the worker emails the
+// owner through Resend (secrets RESEND_API_KEY and ALERT_EMAIL). Without those
+// secrets it simply skips the alert.
+//
 // Storage: each user's data is one KV value keyed by their verified email.
 // Records merge one at a time (newest updatedAt wins), so two devices adding
 // different brews never overwrite each other.
@@ -25,11 +29,11 @@ const GOOGLE_CERTS = "https://www.googleapis.com/oauth2/v3/certs";
 const GOOGLE_ISSUERS = new Set(["accounts.google.com", "https://accounts.google.com"]);
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (url.pathname.startsWith("/api/")) {
       try {
-        return await handleApi(request, env, url);
+        return await handleApi(request, env, url, ctx);
       } catch (err) {
         return json({ error: err.message || "Server error", ...(err.code ? { code: err.code } : {}) }, err.status || 500);
       }
@@ -38,7 +42,7 @@ export default {
   },
 };
 
-async function handleApi(request, env, url) {
+async function handleApi(request, env, url, ctx) {
   // Public: lets the client know which Google client id to sign in with.
   if (url.pathname === "/api/config") {
     return json({ clientId: env.GOOGLE_CLIENT_ID || null });
@@ -55,6 +59,11 @@ async function handleApi(request, env, url) {
     const email = String(payload.email || "").toLowerCase();
     if (!email) throw httpError(401, "That account has no email address");
     if (payload.email_verified === false) throw httpError(401, "Google hasn't verified that email");
+
+    // Send the alert in the background so sign-in isn't slowed down.
+    const alert = noteSignIn(email, payload, env);
+    if (ctx && ctx.waitUntil) ctx.waitUntil(alert);
+    else await alert;
 
     const token = newToken();
     await env.BREWLOG.put(`sess:${token}`, JSON.stringify({ email, at: Date.now() }), {
@@ -741,6 +750,41 @@ function capError() {
   const e = httpError(429, CAP_MESSAGE);
   e.code = "cap";
   return e;
+}
+
+// ---------- Sign-up alerts ----------
+
+async function noteSignIn(email, payload, env) {
+  try {
+    const seenKey = `seen:${email}`;
+    if (await env.BREWLOG.get(seenKey)) return;
+    // Someone who already has saved data isn't new; they just predate these alerts.
+    const existing = await env.BREWLOG.get(`user:${email}`);
+    await env.BREWLOG.put(seenKey, JSON.stringify({ at: Date.now(), name: payload.name || "" }));
+    if (existing) return;
+    await sendSignupAlert(email, payload.name || "", env);
+  } catch (err) {
+    console.log(`sign-up alert failed: ${err && err.message}`);
+  }
+}
+
+async function sendSignupAlert(email, name, env) {
+  if (!env.RESEND_API_KEY || !env.ALERT_EMAIL) return;
+  const when = new Date().toLocaleString("en-US", {
+    timeZone: "America/New_York", month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit",
+  });
+  const who = name ? `${name} (${email})` : email;
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { authorization: `Bearer ${env.RESEND_API_KEY}`, "content-type": "application/json" },
+    body: JSON.stringify({
+      from: "Dialed <onboarding@resend.dev>",
+      to: [env.ALERT_EMAIL],
+      subject: `New Dialed sign-up: ${email}`,
+      text: `${who} signed in to Dialed for the first time on ${when} (New York time).`,
+    }),
+  });
+  if (!res.ok) console.log(`sign-up alert: Resend said ${res.status} ${await res.text()}`);
 }
 
 // ---------- Identity (session cookie, issued after Google Sign-In) ----------
