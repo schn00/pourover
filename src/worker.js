@@ -131,7 +131,7 @@ function valid(rec) {
 // ---------- Bag reader: fill a bag from a photo or a product page ----------
 //
 // POST /api/bag/scan  { images: [dataURL, ...] }            -> { fields, url, domain }
-// POST /api/bag/link  { url } | { domain, beans }           -> { link, fields, note? }
+// POST /api/bag/link  { url } | { domain, beans } | { roaster, beans } -> { link, fields, note? }
 //
 // Runs on Workers AI (the "AI" binding in wrangler.jsonc), inside the free
 // 10,000 Neurons a day. One model per scan; the second is only tried when the
@@ -207,9 +207,16 @@ async function fillFromLink(body, env) {
     // A QR code or printed link that only goes to the home page: search the site instead.
     if (u.pathname.replace(/\/+$/, "") === "") domain = u.hostname;
     else target = u.href;
-  } else {
+  } else if (body.domain) {
     domain = cleanDomain(body.domain);
     if (!domain) throw httpError(400, "No web address to look up.");
+  } else if (body.roaster) {
+    // Nothing on the bag points to a website: work it out from the roaster's name.
+    const roaster = str(body.roaster, 80);
+    domain = roaster ? await findRoasterSite(roaster, env) : "";
+    if (!domain) return { link: null, fields: {}, note: `Couldn't find ${roaster || "the roaster"}'s website. Paste the product link to fill the rest.` };
+  } else {
+    throw httpError(400, "No web address to look up.");
   }
 
   if (!target) {
@@ -223,6 +230,72 @@ async function fillFromLink(body, env) {
   if (!fields.beans && page.title) fields.beans = page.title.slice(0, 160);
   if (!fields.roaster && page.brand) fields.roaster = page.brand.slice(0, 160);
   return { link: page.url, fields };
+}
+
+// ----- finding a roaster's website from its name -----
+//
+// The text model answers from what it learned in training (it can't browse), so
+// every answer is checked: the site has to open and its title or site name has
+// to carry the roaster's name. A wrong or made-up domain fails that and is skipped.
+
+const ROASTER_GENERIC = new Set(["coffee", "coffees", "roasters", "roaster", "roasting", "roastery", "co", "company", "the", "cafe", "and", "espresso", "inc", "llc"]);
+function roasterTokens(s) {
+  const all = String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(/[^a-z0-9]+/).filter((w) => w.length > 1);
+  const distinct = all.filter((w) => !ROASTER_GENERIC.has(w));
+  return distinct.length ? distinct : all;
+}
+
+async function findRoasterSite(roaster, env) {
+  const tried = new Set();
+  for (const model of PAGE_MODELS) {
+    let answer = "";
+    try {
+      const raw = await env.AI.run(model, {
+        messages: [
+          { role: "system", content: 'You know specialty coffee roasters. Reply with only a domain name, like example.com, or the word unknown. No other words.' },
+          { role: "user", content: `What is the official website of the coffee roaster "${roaster}"?` },
+        ],
+        max_tokens: 20,
+        temperature: 0,
+      });
+      answer = String(modelText(raw) || "");
+    } catch (err) {
+      if (isCapError(err)) throw capError();
+      console.log(`roaster site: ${model} failed: ${err && err.message}`);
+      continue;
+    }
+    const m = answer.toLowerCase().match(/[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}/);
+    const domain = m ? cleanDomain(m[0]) : "";
+    if (!domain || tried.has(domain)) continue;
+    tried.add(domain);
+    const site = await verifyRoasterSite(domain, roaster);
+    if (site) return site;
+  }
+  return "";
+}
+
+async function verifyRoasterSite(domain, roaster) {
+  let res;
+  try {
+    res = await fetchWithTimeout(`https://${domain}/`, "text/html,application/xhtml+xml", 6000);
+  } catch {
+    return "";
+  }
+  if (!res.ok) return "";
+  const html = (await res.text()).slice(0, 500_000);
+  const meta = metaTags(html);
+  const title = decodeEntities((html.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1] || "");
+  const label = [title, meta["og:site_name"], meta["og:title"], meta["application-name"]].filter(Boolean).join(" ");
+  if (!label || /for sale|domain (is )?(parked|available)|buy this domain|parked free|coming soon/i.test(label)) return "";
+  const have = new Set(roasterTokens(label));
+  const want = roasterTokens(roaster);
+  const hits = want.filter((w) => have.has(w)).length;
+  if (!hits || hits < Math.ceil(want.length / 2)) return "";
+  try {
+    return new URL(res.url).hostname || domain;
+  } catch {
+    return domain;
+  }
 }
 
 // ----- product pages -----
