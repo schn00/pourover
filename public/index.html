@@ -2376,6 +2376,22 @@ async function findQr(img) {
   return "";
 }
 
+// A roaster you've bagged before: reuse the website from that bag's saved link.
+const ROASTER_GENERIC = new Set(["coffee", "coffees", "roasters", "roaster", "roasting", "roastery", "co", "company", "the", "cafe", "and", "espresso", "inc", "llc"]);
+function roasterKey(s) {
+  const all = String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(/[^a-z0-9]+/).filter((w) => w.length > 1);
+  const distinct = all.filter((w) => !ROASTER_GENERIC.has(w));
+  return (distinct.length ? distinct : all).join(" ");
+}
+function pastRoasterSite(roaster, exceptId) {
+  const want = roasterKey(roaster);
+  if (!want) return "";
+  const hit = Object.values(S.records)
+    .filter((r) => r && r.type === "bag" && !r.deleted && r.id !== exceptId && r.link && roasterKey(r.roaster) === want)
+    .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))[0];
+  try { return hit ? new URL(hit.link).hostname : ""; } catch { return ""; }
+}
+
 function bagAutofill(root, d) {
   const form = $("#bagForm", root);
   const msg = $("#scanMsg", root);
@@ -2440,11 +2456,17 @@ function bagAutofill(root, d) {
       const scan = await scanP;
       const n = apply(scan.fields);
       const qr = await qrP;
-      const target = qr ? { url: qr } : scan.url ? { url: scan.url } : scan.domain ? { domain: scan.domain } : null;
-      if (!target) {
-        return say(n ? "Filled from the photo. No web address on the bag, so paste a link below to fill the rest." : "Couldn't make out the bag. Try a closer, sharper photo.", !n);
+      let target = qr ? { url: qr } : scan.url ? { url: scan.url } : scan.domain ? { domain: scan.domain } : null;
+      const roaster = inp("roaster").value.trim();
+      if (!target && roaster) {
+        const site = pastRoasterSite(roaster, d.id);
+        target = site ? { domain: site } : { roaster };
       }
-      say(n ? "Filled from the photo. Finding the product page…" : "Finding the product page…");
+      if (!target) {
+        return say(n ? "Filled from the photo. No web address or roaster on the bag, so paste a link below to fill the rest." : "Couldn't make out the bag. Try a closer, sharper photo.", !n);
+      }
+      const next = target.roaster ? `Looking up ${roaster}'s website…` : "Finding the product page…";
+      say(n ? `Filled from the photo. ${next}` : next);
       try {
         await fromPage(target, true);
       } catch (e) {
