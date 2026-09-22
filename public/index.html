@@ -380,17 +380,21 @@ dialog.sheet::backdrop{background:rgba(10,8,6,.45)}
 .sheet-body textarea{min-height:64px}
 .sheet-body input:focus,.sheet-body select:focus,.sheet-body textarea:focus{outline:none;border-color:var(--accent)}
 .freezes{display:grid;gap:8px}
-/* bag reader: scan button, status line, fields it filled */
-.scanbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:-4px 0 14px}
-.scanbtn{display:inline-flex;align-items:center;gap:7px}
-.scanbtn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.scanbtn[aria-busy="true"]{opacity:.55;pointer-events:none}
-.scanbtn:focus-within{outline:2px solid var(--accent);outline-offset:2px}
-.scanmsg{flex:1 1 180px;min-width:0;font-size:12.5px;line-height:1.4;color:var(--muted)}
-.scanmsg.err{color:var(--warn)}
+/* bag reader: scan or link, status line, fields it filled */
+.autofill{display:grid;gap:8px;margin:-4px 0 14px}
+.afrow{display:flex;flex-wrap:wrap;gap:8px}
+.afbtn{display:inline-flex;align-items:center;gap:7px;min-width:0;max-width:100%}
+.afbtn svg{flex:none;width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.afbtn[aria-busy="true"],.afbtn:disabled{opacity:.55;pointer-events:none}
+.afbtn:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.afbtn .site{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:min(52vw,240px)}
+.afbtn[aria-expanded="true"]{background:var(--accent-soft);color:var(--accent-text)}
 .linkrow{display:flex;gap:6px}
+.linkrow[hidden]{display:none}
 .linkrow input{flex:1 1 auto;min-width:0}
 .linkrow .btn:disabled{opacity:.55;pointer-events:none}
+.scanmsg{font-size:12.5px;line-height:1.4;color:var(--muted)}
+.scanmsg.err{color:var(--warn)}
 .sheet-body .filled{border-color:var(--accent);background:var(--accent-soft)}
 .freeze{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 38px;gap:6px;align-items:end}
 .setrow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
@@ -2308,7 +2312,7 @@ ${bag.notes ? `<div class="beannotes">${esc(bag.notes)}</div>` : ""}
 // then pulls the roaster's product page. Only empty fields are filled, and
 // filled fields are highlighted until edited, so nothing already typed is lost.
 const AUTOFILL_KEYS = ["beans", "roaster", "roastType", "roastDate", "notes", "origin", "region", "process", "variety", "producer", "elevation", "brewNotes"];
-const AUTOFILL_DETAIL = ["origin", "region", "process", "variety", "producer", "elevation", "brewNotes", "link"];
+const AUTOFILL_DETAIL = ["origin", "region", "process", "variety", "producer", "elevation", "brewNotes"];
 
 async function bagApi(path, body) {
   let res;
@@ -2398,11 +2402,25 @@ function bagAutofill(root, d) {
   const pick = $("#scanPick", root);
   const scanBtn = $("#scanBtn", root);
   const linkBtn = $("#fillLink", root);
+  const toggle = $("#linkToggle", root);
+  const panel = $("#linkPanel", root);
   const inp = (n) => form.querySelector(`[name="${n}"]`);
   let busy = false;
 
+  // The link stays tucked away: closed, the button shows just the site's name.
+  const siteName = (v) => { try { return new URL(/^https?:\/\//i.test(v) ? v : `https://${v}`).hostname.replace(/^www\./, ""); } catch { return ""; } };
+  function showLink(open) {
+    panel.hidden = !open;
+    toggle.setAttribute("aria-expanded", String(open));
+    $("#linkLabel", root).textContent = siteName(inp("link").value.trim()) || "Use a link";
+    if (open) inp("link").focus();
+  }
+  showLink(false);
+  toggle.addEventListener("click", () => showLink(panel.hidden));
+  inp("link").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); linkBtn.click(); } });
+
   const say = (text, err) => { msg.textContent = text; msg.classList.toggle("err", !!err); };
-  const setBusy = (b) => { busy = b; scanBtn.setAttribute("aria-busy", String(b)); linkBtn.disabled = b; };
+  const setBusy = (b) => { busy = b; scanBtn.setAttribute("aria-busy", String(b)); linkBtn.disabled = b; toggle.disabled = b; };
   form.addEventListener("input", (e) => e.target.classList && e.target.classList.remove("filled"));
 
   function apply(fields, link) {
@@ -2425,7 +2443,8 @@ function bagAutofill(root, d) {
     }
     if (link) {
       const el = inp("link");
-      if (el && !el.value.trim()) { el.value = link; el.classList.add("filled"); n++; detail = true; }
+      if (el && !el.value.trim()) { el.value = link; n++; }
+      showLink(false);
     }
     if (detail) { const det = $("details.more", form); if (det) det.open = true; }
     return n;
@@ -2434,6 +2453,7 @@ function bagAutofill(root, d) {
   async function fromPage(target, fromPhoto) {
     const page = await bagApi("/api/bag/link", { ...target, beans: inp("beans").value.trim() });
     const n = apply(page.fields, page.link);
+    if (!fromPhoto && !page.note) showLink(false);
     if (page.note) return say(fromPhoto ? `Filled what the photo shows. ${page.note}` : page.note, !fromPhoto);
     say(n ? "Done. Check the highlighted fields before saving." : fromPhoto ? "Done. The product page had nothing new to add." : "That page had nothing new to fill in.");
   }
@@ -2463,7 +2483,7 @@ function bagAutofill(root, d) {
         target = site ? { domain: site } : { roaster };
       }
       if (!target) {
-        return say(n ? "Filled from the photo. No web address or roaster on the bag, so paste a link below to fill the rest." : "Couldn't make out the bag. Try a closer, sharper photo.", !n);
+        return say(n ? "Filled from the photo. No web address or roaster on the bag, so use a link to fill the rest." : "Couldn't make out the bag. Try a closer, sharper photo.", !n);
       }
       const next = target.roaster ? `Looking up ${roaster}'s website…` : "Finding the product page…";
       say(n ? `Filled from the photo. ${next}` : next);
@@ -2508,9 +2528,13 @@ function openBagSheet(bag, done) {
   openSheet(`
     <div class="sheet-head"><h1>${isNew ? "Add a bag" : "Edit bag"}</h1><button class="iconbtn" data-close type="button" aria-label="Close">✕</button></div>
     <div id="bagForm">
-      <div class="scanbar">
-        <label class="btn sm scanbtn" id="scanBtn"><input type="file" accept="image/*" multiple hidden id="scanPick" aria-label="Photo of the bag"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.4"/></svg>Scan bag</label>
-        <span class="scanmsg" id="scanMsg" role="status" aria-live="polite">Photo the front, or front and back, to fill this in.</span>
+      <div class="autofill">
+        <div class="afrow">
+          <label class="btn sm afbtn" id="scanBtn"><input type="file" accept="image/*" multiple hidden id="scanPick" aria-label="Photo of the bag"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.4"/></svg>Scan bag</label>
+          <button class="btn sm afbtn" type="button" id="linkToggle" aria-expanded="false" aria-controls="linkPanel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.2 1.2"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2"/></svg><span class="site" id="linkLabel">Use a link</span></button>
+        </div>
+        <div class="linkrow" id="linkPanel" hidden><input name="link" type="url" value="${esc(d.link || "")}" placeholder="https://roaster.com/ethiopia-guji" aria-label="Link to the bag"><button class="btn sm" type="button" id="fillLink">Fill</button></div>
+        <span class="scanmsg" id="scanMsg" role="status" aria-live="polite">Scan the bag or use the roaster's link to fill this in.</span>
       </div>
       <div class="grid">
         <label class="f wide"><span>Beans</span><input name="beans" value="${esc(d.beans)}" placeholder="Ethiopia Guji Hambela" required></label>
@@ -2529,7 +2553,6 @@ function openBagSheet(bag, done) {
           <label class="f wide"><span>Producer or washing station</span><input name="producer" list="dl-producer" value="${esc(d.producer)}" placeholder="Hambela Estate"></label>
           <label class="f"><span>Elevation (masl)</span><input name="elevation" inputmode="numeric" value="${esc(d.elevation ?? "")}" placeholder="1950"></label>
           <label class="f"><span>Decaf</span><div class="seg" id="decafSeg"><button type="button" data-v="false" aria-pressed="${!d.decaf}">No</button><button type="button" data-v="true" aria-pressed="${!!d.decaf}">Yes</button></div></label>
-          <div class="f wide"><span>Link to the bag</span><div class="linkrow"><input name="link" type="url" value="${esc(d.link || "")}" placeholder="https://roaster.com/ethiopia-guji" aria-label="Link to the bag"><button class="btn sm" type="button" id="fillLink">Fill from link</button></div></div>
           <label class="f wide"><span>Roaster's brew notes</span><textarea name="brewNotes" rows="3" placeholder="15 g to 250 g, 94\u00b0C, medium-fine, 2:45 total">${esc(d.brewNotes || "")}</textarea></label>
         </div>
       </details>
