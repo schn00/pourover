@@ -380,6 +380,18 @@ dialog.sheet::backdrop{background:rgba(10,8,6,.45)}
 .sheet-body textarea{min-height:64px}
 .sheet-body input:focus,.sheet-body select:focus,.sheet-body textarea:focus{outline:none;border-color:var(--accent)}
 .freezes{display:grid;gap:8px}
+/* bag reader: scan button, status line, fields it filled */
+.scanbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:-4px 0 14px}
+.scanbtn{display:inline-flex;align-items:center;gap:7px}
+.scanbtn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.scanbtn[aria-busy="true"]{opacity:.55;pointer-events:none}
+.scanbtn:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.scanmsg{flex:1 1 180px;min-width:0;font-size:12.5px;line-height:1.4;color:var(--muted)}
+.scanmsg.err{color:var(--warn)}
+.linkrow{display:flex;gap:6px}
+.linkrow input{flex:1 1 auto;min-width:0}
+.linkrow .btn:disabled{opacity:.55;pointer-events:none}
+.sheet-body .filled{border-color:var(--accent);background:var(--accent-soft)}
 .freeze{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 38px;gap:6px;align-items:end}
 .setrow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
 .setrow:first-of-type{border-top:0}
@@ -2291,6 +2303,177 @@ ${bag.notes ? `<div class="beannotes">${esc(bag.notes)}</div>` : ""}
   };
 }
 
+// ---------- Fill a bag from a photo or a product link ----------
+// Reads the bag on the server (Workers AI), decodes any QR code on the phone,
+// then pulls the roaster's product page. Only empty fields are filled, and
+// filled fields are highlighted until edited, so nothing already typed is lost.
+const AUTOFILL_KEYS = ["beans", "roaster", "roastType", "roastDate", "notes", "origin", "region", "process", "variety", "producer", "elevation", "brewNotes"];
+const AUTOFILL_DETAIL = ["origin", "region", "process", "variety", "producer", "elevation", "brewNotes", "link"];
+
+async function bagApi(path, body) {
+  let res;
+  try {
+    res = await fetch(path, { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+  } catch {
+    throw new Error("You're offline, so the bag can't be read right now.");
+  }
+  const data = await res.json().catch(() => ({}));
+  if (res.status === 401 || res.status === 403) throw new Error("Sign in to read bags from a photo or link.");
+  if (!res.ok) throw new Error(data.error || "Couldn't read that. Fill it in by hand for now.");
+  return data;
+}
+
+function loadPhoto(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => resolve({ img, url });
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("That photo couldn't be opened. Try another.")); };
+    img.src = url;
+  });
+}
+
+function photoCanvas(img, max) {
+  const s = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const c = document.createElement("canvas");
+  c.width = Math.round(img.naturalWidth * s);
+  c.height = Math.round(img.naturalHeight * s);
+  c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+  return c;
+}
+
+let jsqrLoading = null;
+function loadJsQR() {
+  return (jsqrLoading ||= new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js";
+    s.onload = () => (window.jsQR ? resolve(window.jsQR) : reject());
+    s.onerror = () => { jsqrLoading = null; reject(); };
+    document.head.appendChild(s);
+  }));
+}
+
+// QR codes are decoded here on the phone: free, instant, and more reliable than asking a model.
+async function findQr(img) {
+  try {
+    if ("BarcodeDetector" in window) {
+      const formats = BarcodeDetector.getSupportedFormats ? await BarcodeDetector.getSupportedFormats() : ["qr_code"];
+      if (formats.includes("qr_code")) {
+        const codes = await new BarcodeDetector({ formats: ["qr_code"] }).detect(img);
+        return (codes[0] && codes[0].rawValue) || "";
+      }
+    }
+  } catch {}
+  try {
+    const jsQR = await loadJsQR();
+    for (const max of [1400, 800]) {
+      const c = photoCanvas(img, max);
+      const px = c.getContext("2d").getImageData(0, 0, c.width, c.height);
+      const hit = jsQR(px.data, c.width, c.height, { inversionAttempts: "dontInvert" });
+      if (hit && hit.data) return hit.data;
+    }
+  } catch {}
+  return "";
+}
+
+function bagAutofill(root, d) {
+  const form = $("#bagForm", root);
+  const msg = $("#scanMsg", root);
+  const pick = $("#scanPick", root);
+  const scanBtn = $("#scanBtn", root);
+  const linkBtn = $("#fillLink", root);
+  const inp = (n) => form.querySelector(`[name="${n}"]`);
+  let busy = false;
+
+  const say = (text, err) => { msg.textContent = text; msg.classList.toggle("err", !!err); };
+  const setBusy = (b) => { busy = b; scanBtn.setAttribute("aria-busy", String(b)); linkBtn.disabled = b; };
+  form.addEventListener("input", (e) => e.target.classList && e.target.classList.remove("filled"));
+
+  function apply(fields, link) {
+    let n = 0, detail = false;
+    for (const k of AUTOFILL_KEYS) {
+      const v = fields && fields[k];
+      if (v == null || v === "") continue;
+      const el = inp(k);
+      if (!el || String(el.value).trim()) continue;
+      if (el.tagName === "SELECT" && ![...el.options].some((o) => o.value === String(v))) continue;
+      el.value = String(v);
+      el.classList.add("filled");
+      n++;
+      if (AUTOFILL_DETAIL.includes(k)) detail = true;
+    }
+    if (fields && fields.decaf === true && !d.decaf) {
+      d.decaf = true;
+      $$("#decafSeg button", root).forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === "true")));
+      n++; detail = true;
+    }
+    if (link) {
+      const el = inp("link");
+      if (el && !el.value.trim()) { el.value = link; el.classList.add("filled"); n++; detail = true; }
+    }
+    if (detail) { const det = $("details.more", form); if (det) det.open = true; }
+    return n;
+  }
+
+  async function fromPage(target, fromPhoto) {
+    const page = await bagApi("/api/bag/link", { ...target, beans: inp("beans").value.trim() });
+    const n = apply(page.fields, page.link);
+    if (page.note) return say(fromPhoto ? `Filled what the photo shows. ${page.note}` : page.note, !fromPhoto);
+    say(n ? "Done. Check the highlighted fields before saving." : fromPhoto ? "Done. The product page had nothing new to add." : "That page had nothing new to fill in.");
+  }
+
+  pick.addEventListener("change", async () => {
+    const files = [...pick.files].slice(0, 2);
+    pick.value = "";
+    if (!files.length || busy) return;
+    setBusy(true);
+    let photos = [];
+    try {
+      say("Reading the bag…");
+      photos = await Promise.all(files.map(loadPhoto));
+      const images = photos.map((p) => photoCanvas(p.img, 1536).toDataURL("image/jpeg", 0.82));
+      const scanP = bagApi("/api/bag/scan", { images });
+      const qrP = (async () => {
+        for (const p of photos) { const q = (await findQr(p.img)).trim(); if (/^https?:\/\//i.test(q)) return q; }
+        return "";
+      })();
+      const scan = await scanP;
+      const n = apply(scan.fields);
+      const qr = await qrP;
+      const target = qr ? { url: qr } : scan.url ? { url: scan.url } : scan.domain ? { domain: scan.domain } : null;
+      if (!target) {
+        return say(n ? "Filled from the photo. No web address on the bag, so paste a link below to fill the rest." : "Couldn't make out the bag. Try a closer, sharper photo.", !n);
+      }
+      say(n ? "Filled from the photo. Finding the product page…" : "Finding the product page…");
+      try {
+        await fromPage(target, true);
+      } catch (e) {
+        say(n ? `Filled from the photo. ${e.message}` : e.message, !n);
+      }
+    } catch (e) {
+      say(e.message, true);
+    } finally {
+      photos.forEach((p) => URL.revokeObjectURL(p.url));
+      setBusy(false);
+    }
+  });
+
+  linkBtn.addEventListener("click", async () => {
+    const url = inp("link").value.trim();
+    if (!url) { say("Paste the bag's web address first.", true); inp("link").focus(); return; }
+    if (busy) return;
+    setBusy(true);
+    say("Reading the product page…");
+    try {
+      await fromPage({ url }, false);
+    } catch (e) {
+      say(e.message, true);
+    } finally {
+      setBusy(false);
+    }
+  });
+}
+
 const BAG_DETAIL_KEYS = ["origin", "region", "process", "variety", "producer", "elevation"];
 const hasDetail = (g) => !!(g && (BAG_DETAIL_KEYS.some((k) => g[k] != null && g[k] !== "") || g.decaf));
 function openBagSheet(bag, done) {
@@ -2303,6 +2486,10 @@ function openBagSheet(bag, done) {
   openSheet(`
     <div class="sheet-head"><h1>${isNew ? "Add a bag" : "Edit bag"}</h1><button class="iconbtn" data-close type="button" aria-label="Close">✕</button></div>
     <div id="bagForm">
+      <div class="scanbar">
+        <label class="btn sm scanbtn" id="scanBtn"><input type="file" accept="image/*" multiple hidden id="scanPick" aria-label="Photo of the bag"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13.2" r="3.4"/></svg>Scan bag</label>
+        <span class="scanmsg" id="scanMsg" role="status" aria-live="polite">Photo the front, or front and back, to fill this in.</span>
+      </div>
       <div class="grid">
         <label class="f wide"><span>Beans</span><input name="beans" value="${esc(d.beans)}" placeholder="Ethiopia Guji Hambela" required></label>
         <label class="f wide"><span>Roaster</span><input name="roaster" value="${esc(d.roaster)}" placeholder="Sey"></label>
@@ -2320,7 +2507,7 @@ function openBagSheet(bag, done) {
           <label class="f wide"><span>Producer or washing station</span><input name="producer" list="dl-producer" value="${esc(d.producer)}" placeholder="Hambela Estate"></label>
           <label class="f"><span>Elevation (masl)</span><input name="elevation" inputmode="numeric" value="${esc(d.elevation ?? "")}" placeholder="1950"></label>
           <label class="f"><span>Decaf</span><div class="seg" id="decafSeg"><button type="button" data-v="false" aria-pressed="${!d.decaf}">No</button><button type="button" data-v="true" aria-pressed="${!!d.decaf}">Yes</button></div></label>
-          <label class="f wide"><span>Link to the bag</span><input name="link" type="url" value="${esc(d.link || "")}" placeholder="https://roaster.com/ethiopia-guji"></label>
+          <div class="f wide"><span>Link to the bag</span><div class="linkrow"><input name="link" type="url" value="${esc(d.link || "")}" placeholder="https://roaster.com/ethiopia-guji" aria-label="Link to the bag"><button class="btn sm" type="button" id="fillLink">Fill from link</button></div></div>
           <label class="f wide"><span>Roaster's brew notes</span><textarea name="brewNotes" rows="3" placeholder="15 g to 250 g, 94\u00b0C, medium-fine, 2:45 total">${esc(d.brewNotes || "")}</textarea></label>
         </div>
       </details>
@@ -2334,6 +2521,7 @@ function openBagSheet(bag, done) {
       </div>
     </div>`, (root) => {
     const form = $("#bagForm", root);
+    bagAutofill(root, d);
     const redraw = () => ($("#freezes", root).innerHTML = fr());
     const ds = $("#decafSeg", root);
     if (ds) ds.addEventListener("click", (e) => {
