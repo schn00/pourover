@@ -1091,6 +1091,11 @@ body[data-view="log"]{--sheet:#EEF0F5}
 [data-theme="light"] .bmrow.done{color:#B5BBCC}
 [data-theme="light"] .bmmini{background:#E9EDF8;color:#141A2E;border-radius:12px}
 [data-theme="light"] .bmmini .mgo{color:#3B4FC4}
+
+#brewForm .rgrid .bc.rtime{background:#EEF1FF;box-shadow:inset 0 0 0 1px #D6DEFF}
+#brewForm .rgrid .bc.rtime .nlab,#brewForm .rgrid .bc.rtime.isempty .nlab{display:flex;align-items:center;gap:4px;color:var(--accent)}
+#brewForm .swi{width:13px;height:13px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+[data-theme="dark"] #brewForm .rgrid .bc.rtime{background:#1A2445;box-shadow:inset 0 0 0 1px #2C3A70}
 </style>
 </head>
 <body>
@@ -1693,14 +1698,14 @@ function viewLog(mode, id) {
         <div class="bc rc rbox"><div class="num"><span class="nlab">temp</span><span class="val">
           <input data-k="temp" data-r data-t="num" inputmode="decimal" size="4" value="${v(tempDisp(d.tempF))}" placeholder="${unit === "C" ? 94 : 200}" aria-label="Temperature"><i>&deg;${unit}</i>
           <span class="nudge"><button type="button" data-step="temp" data-dir="1" aria-label="Raise temperature">+</button><button type="button" data-step="temp" data-dir="-1" aria-label="Lower temperature">&minus;</button></span></span></div></div>
-        <div class="rc rgap" aria-hidden="true"></div>
+        <div class="bc rc rbox rtime"><div class="num"><span class="nlab"><svg class="swi" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M10 2h4M12 2v3"/></svg>brew time</span><span class="val">
+          <input data-k="time" data-r inputmode="numeric" size="4" value="${v(mmss(d.timeS))}" placeholder="3:10" autocomplete="off" aria-label="Brew time"></span></div></div>
         <div class="bc rc bloom" id="bloomCell"><div class="num"><span class="nlab">bloom</span><span class="val bval">
           <input data-k="bloomG" data-r data-t="num" inputmode="decimal" size="3" value="${v(d.bloomG)}" placeholder="45" aria-label="Bloom water in grams"><i>g</i><b class="bdot" aria-hidden="true">&middot;</b><input data-k="bloomS" data-r data-t="num" inputmode="numeric" size="3" value="${v(d.bloomS)}" placeholder="40" aria-label="Bloom time in seconds"><i>s</i></span>
           <button type="button" class="nobloom" id="noBloom" hidden>no bloom</button></div></div>
         <div class="bc rc"><div class="num"><span class="nlab">pours</span><span class="val">
           <input data-k="pours" data-r data-t="num" inputmode="numeric" size="3" value="${v(d.pours)}" placeholder="3" aria-label="Pours"></span></div></div>
-        <div class="bc rc"><div class="num"><span class="nlab">brew time</span><span class="val">
-          <input data-k="time" data-r inputmode="numeric" size="4" value="${v(mmss(d.timeS))}" placeholder="3:10" autocomplete="off" aria-label="Brew time"></span></div></div>
+        <div class="rc rgap" aria-hidden="true"></div>
       </div>
       <label class="rmeth"><span>method</span><input data-k="method" data-r list="dl-method" value="${v(d.method)}" placeholder="Center pours"></label>
       <details class="along" id="along">
