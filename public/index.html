@@ -957,7 +957,7 @@ main .knowrow .chip{background:#E4E7EC;color:#2E3A4B}
 #brewForm .rgrid .val{border:0;min-height:0;padding:0;display:flex;align-items:baseline;gap:2px;flex-wrap:nowrap}
 #brewForm .rgrid .val input{font-size:22px;font-weight:300;font-stretch:100%;letter-spacing:-.01em;width:3.2ch;min-width:0;flex:none;padding:0;line-height:1.2}
 #brewForm .rgrid .val i{font-size:12px;color:var(--faint);margin-left:0}
-#brewForm .rgrid .rbig .val input{font-size:38px;font-weight:250;letter-spacing:-.03em;width:3ch;line-height:1.08}
+#brewForm .rgrid .rbig .val input{font-size:38px;font-weight:250;letter-spacing:-.03em;width:var(--w,3ch);line-height:1.08}
 #brewForm .rgrid .rbig .val i{font-size:15px}
 #brewForm .rgrid .rcof{position:relative}
 #brewForm .rlink{position:absolute;right:-6px;bottom:10px;display:flex;flex-direction:column;align-items:center;width:54px;pointer-events:none}
@@ -1096,6 +1096,48 @@ body[data-view="log"]{--sheet:#EEF0F5}
 #brewForm .rgrid .bc.rtime .nlab,#brewForm .rgrid .bc.rtime.isempty .nlab{display:flex;align-items:center;gap:4px;color:var(--accent)}
 #brewForm .swi{width:13px;height:13px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 [data-theme="dark"] #brewForm .rgrid .bc.rtime{background:#1A2445;box-shadow:inset 0 0 0 1px #2C3A70}
+
+/* ===== sleek scheme: one blue accent, neutral headers, colored icon badges ===== */
+body[data-view="log"]{--sheet:#EDF1F5;--accent:#2563EB;--accent-soft:#DBEAFE;--accent-text:#1D4ED8}
+[data-theme="dark"] body[data-view="log"]{--sheet:#04070D;--accent:#60A5FA;--accent-soft:#172554;--accent-text:#93C5FD}
+#brewForm .lsec{border-color:transparent;box-shadow:0 1px 2px rgba(15,23,42,.06)}
+#brewForm .rsec .lsh,#brewForm .tsec .lsh,#brewForm .gsh{background:#F6F8FB;color:#334155;border-bottom:1px solid #E2E8F0;padding:7px 12px;gap:8px}
+#brewForm .lib{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;flex:none}
+#brewForm .lib .lsi{width:14px;height:14px;stroke-width:1.9}
+#brewForm .lib.r{background:#DBEAFE;color:#2563EB}
+#brewForm .lib.g{background:#F1F5F9;color:#64748B}
+#brewForm .lib.t{background:#FEF3C7;color:#D97706}
+#brewForm .gline .lib .lsi{width:14px;height:14px;color:inherit}
+#brewForm .bagcard{background:linear-gradient(135deg,#0F172A,#1E3A8A)}
+#brewForm .bagcard .beanmeta .chip{background:#fff;color:#1E3A8A}
+#brewForm .rgrid .bc.rbox,#brewForm .tnotes,#brewForm .gearboard .bc,#brewForm .gearboard .bc.isempty{background:#F1F5F9}
+#brewForm .rgrid .bc.rtime{background:#F1F5F9;box-shadow:inset 0 0 0 1px #DBE3EE}
+#brewForm .along{background:#F1F5F9!important}
+#brewForm .along .alab,#brewForm .along .bawhat{color:#1E3A8A}
+#brewForm .along .bachev{stroke:#1E3A8A}
+#brewForm .rgrid .nudge button{color:#93A4C3}
+#brewForm .rgrid .grindhint{color:var(--muted)}
+#brewForm .rgrid .nlab .ratio{display:inline-block;position:static;margin-left:5px;font-size:11.5px;font-weight:650;line-height:1.3;padding:1px 6px;border-radius:999px;color:var(--accent);background:var(--accent-soft);vertical-align:1px}
+#brewForm .rgrid .nlab .ratio[hidden]{display:none}
+#brewForm .rgrid .rbig .nlab{display:flex;align-items:center;gap:0}
+#brewForm .saverow .btn.primary{background:linear-gradient(135deg,#0F172A,#1E3A8A);border-color:transparent;color:#fff;box-shadow:0 4px 14px rgba(30,58,138,.25)}
+[data-theme="dark"] #brewForm .lsec{background:#070A11;border-color:#1A2333;box-shadow:none}
+[data-theme="dark"] #brewForm .rsec .lsh,[data-theme="dark"] #brewForm .tsec .lsh,[data-theme="dark"] #brewForm .gsh{background:#0B101A;color:#CBD5E1;border-bottom-color:#1A2333}
+[data-theme="dark"] #brewForm .lib.r{background:#172554;color:#60A5FA}
+[data-theme="dark"] #brewForm .lib.g{background:#1E293B;color:#94A3B8}
+[data-theme="dark"] #brewForm .lib.t{background:#3A2A0B;color:#FBBF24}
+[data-theme="dark"] #brewForm .bagcard{background:linear-gradient(135deg,#0B1222,#1E3A8A)}
+[data-theme="dark"] #brewForm .bagcard .beanmeta .chip:not(.frozen){background:#DBEAFE;color:#0F172A}
+[data-theme="dark"] #brewForm .rgrid .bc.rbox,[data-theme="dark"] #brewForm .tnotes,[data-theme="dark"] #brewForm .gearboard .bc{background:#162033}
+[data-theme="dark"] #brewForm .rgrid .bc.rtime{background:#162033;box-shadow:inset 0 0 0 1px #24324A}
+[data-theme="dark"] #brewForm .along{background:#162033!important}
+[data-theme="dark"] #brewForm .along .alab,[data-theme="dark"] #brewForm .along .bawhat{color:#93C5FD}
+[data-theme="dark"] #brewForm .along .bachev{stroke:#93C5FD}
+[data-theme="dark"] #brewForm .rgrid .nudge button{color:#4B6390}
+[data-theme="dark"] #brewForm .saverow .btn.primary{background:linear-gradient(135deg,#1E3A8A,#2563EB);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.25)}
+
+[data-theme="dark"] #brewForm .bagcard::after{border-color:rgba(255,255,255,.5)}
+
 </style>
 </head>
 <body>
@@ -1683,12 +1725,12 @@ function viewLog(mode, id) {
     </section>
 
     <section class="lsec rsec">
-      <div class="lsh"><svg class="lsi" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4A2 2 0 0 0 19 18l-5-9V3M7.5 14h9"/></svg><span>recipe</span></div>
+      <div class="lsh"><span class="lib r"><svg class="lsi" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4A2 2 0 0 0 19 18l-5-9V3M7.5 14h9"/></svg></span><span>recipe</span></div>
       <div class="board rgrid">
         <div class="bc rc rbig rcof"><div class="num"><span class="nlab">coffee</span><span class="val">
           <input data-k="dose" data-r data-t="num" inputmode="decimal" size="4" value="${v(d.dose)}" placeholder="15" aria-label="Coffee in grams"><i>g</i></span></div>
-          <div class="rlink" id="ratioLink" aria-hidden="true"><span class="ratio off" id="ratioOut">&mdash;</span><svg viewBox="0 0 40 10"><path d="M2 5H37M32 1l5 4-5 4"/></svg></div></div>
-        <div class="bc rc rbig"><div class="num"><span class="nlab">water</span><span class="val">
+</div>
+        <div class="bc rc rbig"><div class="num"><span class="nlab">water <span class="ratio off" id="ratioOut" hidden>&mdash;</span></span><span class="val">
           <input data-k="waterG" data-r data-t="num" inputmode="decimal" size="4" value="${v(d.waterG)}" placeholder="250" aria-label="Water in grams"><i>g</i></span></div></div>
         <div class="rc rgap" aria-hidden="true"></div>
         <div class="bc rc rbox"><div class="num"><span class="nlab">grind</span><span class="val">
@@ -1738,8 +1780,8 @@ function viewLog(mode, id) {
     </section>
 
     <section class="lsec gsec">
-      <div class="lsh gsh" id="gearHead" hidden><svg class="lsi" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></svg><span>gear</span><button type="button" class="gdone" id="gearDone">Done</button></div>
-      <div class="gline" id="gearLine"><svg class="lsi" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></svg><span class="gsum" id="gearSum"></span><button type="button" class="gedit" id="gearEdit" aria-expanded="false" aria-controls="gearBoard">Edit</button></div>
+      <div class="lsh gsh" id="gearHead" hidden><span class="lib g"><svg class="lsi" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></svg></span><span>gear</span><button type="button" class="gdone" id="gearDone">Done</button></div>
+      <div class="gline" id="gearLine"><span class="lib g"><svg class="lsi" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></svg></span><span class="gsum" id="gearSum"></span><button type="button" class="gedit" id="gearEdit" aria-expanded="false" aria-controls="gearBoard">Edit</button></div>
       <div class="board gearboard" id="gearBoard" hidden>
         <div class="bc"><label class="txt"><span>brewer</span><input data-k="brewer" data-r list="dl-brewer" value="${v(d.brewer)}" placeholder="V60"></label></div>
         <div class="bc"><label class="txt"><span>filter</span><input data-k="filter" data-r list="dl-filter" value="${v(d.filter)}" placeholder="Cafec Abaca"></label></div>
@@ -1749,7 +1791,7 @@ function viewLog(mode, id) {
     </section>
 
     <section class="lsec tsec">
-      <div class="lsh"><svg class="lsi" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM17 10h1.5a2.5 2.5 0 0 1 0 5H17M8 3c0 1.5 1 1.5 1 3M12 3c0 1.5 1 1.5 1 3"/></svg><span>how it tasted</span></div>
+      <div class="lsh"><span class="lib t"><svg class="lsi" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM17 10h1.5a2.5 2.5 0 0 1 0 5H17M8 3c0 1.5 1 1.5 1 3M12 3c0 1.5 1 1.5 1 3"/></svg></span><span>how it tasted</span></div>
       <div class="trate">
         <div><span class="nlab">rating</span><button type="button" class="rbignum ${isNum(d.rating) ? "" : "off"}" id="rateVal" aria-label="Clear rating">${isNum(d.rating) ? d.rating : "&ndash;"}<small>/10</small></button></div>
         <div><div class="rslider" id="rate" role="slider" tabindex="0" aria-label="Rating, 1 to 10" aria-valuemin="1" aria-valuemax="10"${isNum(d.rating) ? ` aria-valuenow="${d.rating}"` : ""}>
@@ -1787,7 +1829,7 @@ function viewLog(mode, id) {
     const el = $("#ratioOut");
     el.textContent = r ? ratioStr(r) : "\u2014";
     el.classList.toggle("off", !r);
-    $("#ratioLink").hidden = !r;
+    el.hidden = !r;
   };
   // The collapsed band carries what the sheet has scrolled past.
   const updMini = () => {
@@ -1954,7 +1996,11 @@ function viewLog(mode, id) {
   };
   $("#noBloom").addEventListener("click", () => { FORM.bloomOpen = true; paintBloom(); field("bloomG").focus(); });
   // Bloom inputs size to their digits so "100 g · 45 s" still fits the column.
-  const fitBloom = () => ["bloomG", "bloomS"].forEach((k) => { const f = field(k); const n = Math.max(2, (f.value || f.placeholder || "").length); f.style.setProperty("--w", n * 0.62 + 0.15 + "em"); });
+  const fitBloom = () => ["bloomG", "bloomS", "dose", "waterG"].forEach((k) => {
+    const f = field(k), t = f.value || f.placeholder || "";
+    const w = [...t].reduce((a, ch) => a + (ch === "." ? 0.3 : 0.6), 0); // units sit right after the digits
+    f.style.setProperty("--w", Math.max(1.3, w) + 0.12 + "em");
+  });
   const pb = paintBloom;
   FORM.paintBloom = () => { pb(); fitBloom(); };
   fitBloom();
