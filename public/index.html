@@ -1069,6 +1069,25 @@ body[data-view="log"]{--sheet:#EEF0F5}
 [data-theme="dark"] #brewForm .lsec{background:#0F1218;border-color:#1C2030;box-shadow:none}
 [data-theme="dark"] #brewForm .rgrid .bc.rbox,[data-theme="dark"] #brewForm .tnotes,[data-theme="dark"] #brewForm .gearboard .bc{background:#1C2334}
 [data-theme="dark"] #brewForm .along{background:#19223F!important}
+
+/* brew mode follows the app theme: a light sheet in light mode */
+[data-theme="light"] .bm{background:rgba(20,26,46,.25)}
+[data-theme="light"] .bmsheet{background:#F5F6FA;color:#141A2E}
+[data-theme="light"] .bmgrab{background:#C9CEDF}
+[data-theme="light"] .bmch span,[data-theme="light"] .bmx{background:#E9EDF8;color:#3B4FC4}
+[data-theme="light"] .bmx:focus-visible,[data-theme="light"] .bmgo:focus-visible,[data-theme="light"] .bmsub button:focus-visible,[data-theme="light"] .bmfold summary:focus-visible{outline-color:#3B4FC4}
+[data-theme="light"] .bmglow{opacity:.22}
+[data-theme="light"] .bmtg small,[data-theme="light"] .bmtm small,[data-theme="light"] .bmlab{color:#6A7396}
+[data-theme="light"] .bmadd{color:#fff}
+[data-theme="light"] .bmpn,[data-theme="light"] .bmfold{background:#fff;border:1px solid #E4E7EF;box-shadow:0 1px 2px rgba(20,26,46,.06)}
+[data-theme="light"] .bmnxg,[data-theme="light"] .bmcd,[data-theme="light"] .bmfold summary,[data-theme="light"] .bmsub button{color:#3B4FC4}
+[data-theme="light"] .bmsub button:disabled{color:#B5BBCC}
+[data-theme="light"] .bmrow{color:#8A93B5}
+[data-theme="light"] .bmrow .d{background:#D5DAE8}
+[data-theme="light"] .bmrow.now,[data-theme="light"] .bmrow.now b{color:#141A2E}
+[data-theme="light"] .bmrow.done{color:#B5BBCC}
+[data-theme="light"] .bmmini{background:#E9EDF8;color:#141A2E;border-radius:12px}
+[data-theme="light"] .bmmini .mgo{color:#3B4FC4}
 </style>
 </head>
 <body>
@@ -2188,7 +2207,10 @@ function renderAlong() {
 const stepLabel = (st, i) => st.lab || (i === 0 ? "bloom" : "pour " + (i + 1));
 // Brew mode sits on ink in both themes, so it uses lighter versions of the step hues.
 const BM_COLORS = ["#7B95FF", "#3FD0BF", "#B490FF", "#F287BC", "#5DB8F5", "#9AA6CC"];
-const bmColor = (i, n) => (i === n - 1 ? "#F0A24A" : BM_COLORS[i % (BM_COLORS.length - 1)]);
+// Light brew mode uses deeper versions of the same hues so they hold up on white.
+const BM_COLORS_LIGHT = ["#3355F0", "#0EA393", "#7A4FE0", "#D9488C", "#1F8FD6", "#6A7396"];
+const bmLight = () => document.documentElement.dataset.theme !== "dark";
+const bmColor = (i, n) => { const L = bmLight(); return i === n - 1 ? (L ? "#E08A1E" : "#F0A24A") : (L ? BM_COLORS_LIGHT : BM_COLORS)[i % (BM_COLORS.length - 1)]; };
 function paintAlong() {
   const sc = alongScaled(), bm = $("#bm"); if (!sc) return;
   const running = AL.tick != null, steps = sc.steps, n = steps.length;
@@ -2216,7 +2238,7 @@ function paintAlong() {
     if (b <= a) return;
     const L = Math.max(0, (b - a) / END * C - GAP), o = -(a / END * C);
     const d = Math.max(0, Math.min(b, AL.elapsed) - a) / (b - a) * L, c = bmColor(k, n);
-    g += `<circle cx="60" cy="60" r="${R}" fill="none" stroke="${c}" stroke-opacity=".2" stroke-width="${W}" stroke-dasharray="${L} ${C}" stroke-dashoffset="${o}"/>`;
+    g += `<circle cx="60" cy="60" r="${R}" fill="none" stroke="${c}" stroke-opacity="${bmLight() ? ".16" : ".2"}" stroke-width="${W}" stroke-dasharray="${L} ${C}" stroke-dashoffset="${o}"/>`;
     if (d > 0) g += `<circle cx="60" cy="60" r="${R}" fill="none" stroke="${c}" stroke-width="${W}" stroke-dasharray="${d} ${C}" stroke-dashoffset="${o}"/>`;
   });
   $("#bmRing").innerHTML = g;
@@ -2230,7 +2252,7 @@ function paintAlong() {
   $("#bmTm").innerHTML = `${mmss(Math.floor(AL.elapsed))}<small>/ ${mmss(total)}</small>`;
   const left = nx ? Math.max(0, Math.ceil(nx.t - AL.elapsed)) : 0;
   $("#bmNxs").textContent = nx ? stepLabel(nx, cur + 1) : "done";
-  $("#bmNxs").style.color = nx ? bmColor(cur + 1, n) : "#EEF2FF";
+  $("#bmNxs").style.color = nx ? bmColor(cur + 1, n) : "";
   $("#bmNxg").textContent = nx && nx.cum != null ? `to ${nx.cum} g` : "";
   $("#bmCd").textContent = nx ? `in ${mmss(left)}` : "";
   $("#bmPn").classList.toggle("soon", running && !!nx && left <= 3);
