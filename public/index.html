@@ -970,11 +970,14 @@ main .knowrow .chip{background:#E4E7EC;color:#2E3A4B}
 #brewForm .rgrid .nudge button::before{content:"";position:absolute;inset:-6px -12px}
 #brewForm .rgrid .nudge button:active{color:var(--accent)}
 #brewForm .rgrid .nudge button:focus-visible{outline:1.5px solid var(--accent)}
-#brewForm .rgrid .grindhint{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#brewForm .rgrid .grindhint{font-size:10.5px;line-height:1.25;margin-top:2px;font-weight:600;opacity:.85}
+#brewForm .rgrid .grindhint b{display:block;white-space:nowrap;font-weight:700;opacity:1}
+#brewForm .rgrid .val input:focus{outline:none}
 #brewForm .rgrid .bval[hidden]{display:none}
-#brewForm .rgrid .bval input{width:2.4ch}
+#brewForm .rgrid .bval input{width:var(--w,2.2ch);font-size:20px}
+#brewForm .rgrid .bval{gap:1px}
 #brewForm .rgrid .val input[data-k="time"]{width:4.2ch}
-#brewForm .rgrid .bdot{font-weight:300;color:var(--ghost);margin:0 4px 0 3px}
+#brewForm .rgrid .bdot{font-weight:300;color:var(--ghost);margin:0 3px 0 2px}
 #brewForm .nobloom{all:unset;cursor:pointer;display:block;font-size:17px;font-weight:300;color:var(--ghost);padding:3px 0}
 #brewForm .nobloom[hidden]{display:none}
 #brewForm .rmeth{display:flex;align-items:baseline;gap:10px;padding:10px 23px 8px;cursor:text}
@@ -1824,7 +1827,7 @@ function viewLog(mode, id) {
     if (e.target.dataset.r !== undefined) FORM.dirty = true;
     if (["dose", "waterG"].includes(e.target.dataset.k)) updRatio();
     if (["brewer", "filter", "grinder", "waterType"].includes(e.target.dataset.k)) paintGear();
-    paintBloom();
+    FORM.paintBloom();
     updMini();
   });
   field("date").addEventListener("input", () => { updRoast(); updMini(); });
@@ -1945,7 +1948,11 @@ function viewLog(mode, id) {
     $("#bloomCell .bval").hidden = hide; $("#noBloom").hidden = !hide;
   };
   $("#noBloom").addEventListener("click", () => { FORM.bloomOpen = true; paintBloom(); field("bloomG").focus(); });
-  FORM.paintBloom = paintBloom;
+  // Bloom inputs size to their digits so "100 g · 45 s" still fits the column.
+  const fitBloom = () => ["bloomG", "bloomS"].forEach((k) => { const f = field(k); const n = Math.max(2, (f.value || f.placeholder || "").length); f.style.setProperty("--w", n * 0.62 + 0.15 + "em"); });
+  const pb = paintBloom;
+  FORM.paintBloom = () => { pb(); fitBloom(); };
+  fitBloom();
   paintBloom();
 
   bindCompass();
@@ -2154,7 +2161,7 @@ function alongPaint() {
   const bw = $("#baWhat"); if (bw) bw.textContent = r ? r.name : `${AL.brewer} recipes`;
   $("#alongPick").hidden = !!r; $("#alongChosen").hidden = !r; $("#alongRun").hidden = !r;
   const gh = $("#grindHint");
-  if (gh) { gh.hidden = !(r && r.grind); gh.textContent = r && r.grind ? `recipe: ${String(r.grind).toLowerCase()}` : ""; }
+  if (gh) { gh.hidden = !(r && r.grind); gh.innerHTML = r && r.grind ? `recipe <b>${esc(String(r.grind).toLowerCase())}</b>` : ""; }
   if (r) {
     $("#chBrewer").textContent = r.brewer;
     $("#chName").innerHTML = esc(r.name) + (!r.mine && r.by ? ` <span>${esc(r.by)}</span>` : "");
