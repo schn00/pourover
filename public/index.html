@@ -1061,6 +1061,14 @@ main .knowrow .chip{background:#E4E7EC;color:#2E3A4B}
 [data-theme="dark"] #brewForm .gsh{background:#1E2536;color:#AEB8D3}
 [data-theme="dark"] #brewForm .rtrack{background:#232B42}
 [data-theme="dark"] #brewForm .rthumb{background:#121827}
+
+/* sections read as separate cards: light gray page behind white cards; in dark, deeper cards on a softer page */
+body[data-view="log"]{--sheet:#EEF0F5}
+#brewForm .lsec{margin-top:16px;border-color:transparent;box-shadow:0 1px 2px rgba(20,26,46,.06)}
+[data-theme="dark"] body[data-view="log"]{--sheet:#161922}
+[data-theme="dark"] #brewForm .lsec{background:#0C0E14;border-color:#1D2130;box-shadow:none}
+[data-theme="dark"] #brewForm .rgrid .bc.rbox,[data-theme="dark"] #brewForm .tnotes,[data-theme="dark"] #brewForm .gearboard .bc{background:#141A2A}
+[data-theme="dark"] #brewForm .along{background:#121A33!important}
 </style>
 </head>
 <body>
