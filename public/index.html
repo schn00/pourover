@@ -932,6 +932,135 @@ main .knowrow .chip{background:#E4E7EC;color:#2E3A4B}
 :root[data-theme="dark"] body main .snext .diag,html:not([data-theme="light"]) body main .snext .diag{background:#0F1117;color:#C3C8D6}
 :root[data-theme="dark"] body[data-view="brew"] main .beanmeta .chip,html:not([data-theme="light"]) body[data-view="brew"] main .beanmeta .chip{background:#1F232E;color:var(--ink)}
 :root[data-theme="dark"] body main .snext .diag.under::before,html:not([data-theme="light"]) body main .snext .diag.under::before{background:#B49CFF}
+
+/* ===== log page restyle: rounded section blocks, tinted headers, open-number recipe ===== */
+#brewForm .lsec{margin-top:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden}
+#brewForm .lsh{display:flex;align-items:center;gap:6px;padding:6px 12px;font-size:12.5px;font-weight:650;letter-spacing:.03em}
+#brewForm .lsi{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#brewForm .rsec .lsh{background:#E3EAFF;color:#132BB4}
+#brewForm .tsec .lsh{background:#F3EEFF;color:#6A44C8}
+
+/* bean card: midnight cobalt with a fine inner line */
+#brewForm .bagcard{background:#25306B;border-radius:12px}
+#brewForm .bagcard::after{content:"";position:absolute;inset:3px;border:1px solid rgba(255,255,255,.32);border-radius:10px;pointer-events:none;z-index:0;
+  -webkit-clip-path:polygon(0 0,100% 0,100% calc(100% - 24px),calc(100% - 24px) 100%,0 100%);clip-path:polygon(0 0,100% 0,100% calc(100% - 24px),calc(100% - 24px) 100%,0 100%)}
+#brewForm .bagcard .beanmeta .chip{background:#fff;color:#25306B}
+#brewForm .bagcard .beanmeta .chip.frozen{background:#6FA8FF;color:#101B3F}
+
+/* recipe grid: three aligned columns */
+#brewForm .rgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 8px;background:none;border:0;border-radius:0;margin:0;padding:12px 14px 4px;overflow:visible}
+#brewForm .rgrid .bc,#brewForm .rgrid .bc.isempty,#brewForm .rgrid .bc.bloom{background:none;padding:5px 9px;border-radius:9px;box-shadow:none}
+#brewForm .rgrid .bc.rbox{background:#F3F6FF}
+#brewForm .rgrid .rgap{min-height:0}
+#brewForm .rgrid .nlab{font-size:12.5px;color:var(--muted);margin:0;white-space:nowrap}
+#brewForm .rgrid .bc.isempty .nlab{color:var(--muted)}
+#brewForm .rgrid .val{border:0;min-height:0;padding:0;display:flex;align-items:baseline;gap:2px;flex-wrap:nowrap}
+#brewForm .rgrid .val input{font-size:22px;font-weight:300;font-stretch:100%;letter-spacing:-.01em;width:3.2ch;min-width:0;flex:none;padding:0;line-height:1.2}
+#brewForm .rgrid .val i{font-size:12px;color:var(--faint);margin-left:0}
+#brewForm .rgrid .rbig .val input{font-size:38px;font-weight:250;letter-spacing:-.03em;width:3ch;line-height:1.08}
+#brewForm .rgrid .rbig .val i{font-size:15px}
+#brewForm .rgrid .rcof{position:relative}
+#brewForm .rlink{position:absolute;right:-6px;bottom:10px;display:flex;flex-direction:column;align-items:center;width:54px;pointer-events:none}
+#brewForm .rlink[hidden]{display:none}
+#brewForm .rlink .ratio{position:static;font-size:12.5px;font-weight:600;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:2px 7px;white-space:nowrap}
+#brewForm .rlink svg{width:40px;height:10px;margin-top:3px;fill:none;stroke:var(--ghost);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+/* discreet steppers: + over -, bare glyphs with a generous invisible tap area */
+#brewForm .rgrid .nudge{margin-left:auto;display:flex;flex-direction:column;align-items:center;gap:0;align-self:center;flex:none}
+#brewForm .rgrid .nudge button{all:unset;position:relative;cursor:pointer;width:16px;height:14px;display:grid;place-items:center;font-size:14px;font-weight:300;line-height:1;color:#9AA8E6;border-radius:4px;background:none}
+#brewForm .rgrid .nudge button::before{content:"";position:absolute;inset:-6px -12px}
+#brewForm .rgrid .nudge button:active{color:var(--accent)}
+#brewForm .rgrid .nudge button:focus-visible{outline:1.5px solid var(--accent)}
+#brewForm .rgrid .grindhint{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#brewForm .rgrid .bval[hidden]{display:none}
+#brewForm .rgrid .bval input{width:2.4ch}
+#brewForm .rgrid .val input[data-k="time"]{width:4.2ch}
+#brewForm .rgrid .bdot{font-weight:300;color:var(--ghost);margin:0 4px 0 3px}
+#brewForm .nobloom{all:unset;cursor:pointer;display:block;font-size:17px;font-weight:300;color:var(--ghost);padding:3px 0}
+#brewForm .nobloom[hidden]{display:none}
+#brewForm .rmeth{display:flex;align-items:baseline;gap:10px;padding:10px 23px 8px;cursor:text}
+#brewForm .rmeth span{font-size:12.5px;color:var(--muted);flex:none}
+#brewForm .rmeth input{font-size:16px;font-weight:500;min-width:0}
+
+/* brew along: a soft chip under the method */
+#brewForm .along{display:block!important;margin:0 14px 14px;border-radius:12px;background:#EDF2FF!important;overflow:hidden}
+#brewForm .along .bachip{list-style:none;display:flex;align-items:center;gap:10px;min-height:44px;padding:0 14px;cursor:pointer}
+#brewForm .along .bachip::-webkit-details-marker{display:none}
+#brewForm .along .alab{font-size:15px;font-weight:650;letter-spacing:0;color:#2440D8}
+#brewForm .along .bawhat{margin-left:auto;font-size:13px;font-weight:600;color:#2440D8;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+#brewForm .along .bachev{width:14px;height:14px;flex:none;fill:none;stroke:#2440D8;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .18s}
+#brewForm .along[open] .bachev{transform:rotate(90deg)}
+#brewForm .along .brewrow select{font-size:16px}
+
+/* gear: one line with Edit */
+#brewForm .gline{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 4px 0 14px}
+#brewForm .gline[hidden],#brewForm .gsh[hidden]{display:none}
+#brewForm .gsh{background:#E6EBF4;color:#254272;padding-right:4px}
+#brewForm .gsh .gdone{all:unset;cursor:pointer;margin-left:auto;font-size:13.5px;font-weight:650;letter-spacing:0;color:var(--accent);padding:4px 10px}
+#brewForm .gsh+.gline+.gearboard{padding-top:12px}
+#brewForm .gline .lsi{width:16px;height:16px;color:#254272}
+#brewForm .gsum{flex:1;min-width:0;font-size:14px;letter-spacing:-.01em;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#brewForm .gsum.off{color:var(--faint)}
+#brewForm .gedit{all:unset;cursor:pointer;flex:none;font-size:14px;font-weight:650;color:var(--accent);padding:12px 10px}
+#brewForm .gearboard{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0;padding:2px 14px 14px;border:0;border-radius:0;background:none}
+#brewForm .gearboard .bc,#brewForm .gearboard .bc.isempty{background:#F3F6FF;border-radius:9px;padding:6px 10px 7px;box-shadow:none}
+#brewForm .gearboard .txt{flex-direction:column;align-items:stretch;gap:1px;min-height:0;border:0;padding:0;cursor:text}
+#brewForm .gearboard .txt>span{font-size:12.5px;color:var(--muted);width:auto;padding:0}
+#brewForm .gearboard .bc:focus-within{box-shadow:inset 0 0 0 1.5px var(--accent)}
+#brewForm .gearboard input:focus{outline:none}
+#brewForm .gearboard input::-webkit-calendar-picker-indicator{opacity:0}
+#brewForm .gearboard[hidden]{display:none}
+#brewForm .gearboard .txt input{font-size:16px}
+
+/* how it tasted */
+#brewForm .trate{display:grid;grid-template-columns:88px minmax(0,1fr);align-items:center;gap:6px;padding:12px 14px 4px}
+#brewForm .trate .nlab{font-size:12.5px;color:var(--muted);margin:0}
+#brewForm .rbignum{all:unset;cursor:pointer;display:block;font-size:38px;font-weight:250;letter-spacing:-.03em;line-height:1.05;color:var(--ink);font-variant-numeric:tabular-nums}
+#brewForm .rbignum small{font-size:15px;color:var(--faint);margin-left:2px;letter-spacing:0}
+#brewForm .rbignum.off{color:var(--ghost)}
+#brewForm .rslider{position:relative;height:44px;touch-action:none;cursor:pointer;outline:none}
+#brewForm .rslider:focus-visible{box-shadow:0 0 0 1.5px var(--accent);border-radius:8px}
+#brewForm .rtrack{position:absolute;left:12px;right:12px;top:50%;height:6px;margin-top:-3px;border-radius:3px;background:var(--hair)}
+#brewForm .rfill{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--accent)}
+#brewForm .rtick{position:absolute;top:50%;width:3px;height:3px;margin:-1.5px 0 0 -1.5px;border-radius:50%;background:var(--ghost)}
+#brewForm .rthumb{position:absolute;top:50%;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;background:#fff;border:2px solid var(--accent);box-sizing:border-box;pointer-events:none}
+#brewForm .rthumb[hidden]{display:none}
+#brewForm .trate .rate-ends{margin:-6px 12px 0}
+#brewForm .tpair{display:grid;grid-template-columns:132px minmax(0,1fr);gap:8px;padding:12px 14px 14px;align-items:start}
+#brewForm .tcomp{padding:0}
+#brewForm .tcomp .compass{border:0;border-radius:12px}
+#brewForm .tcomp .tastesaid{text-align:center;color:var(--accent);font-weight:600}
+#brewForm .tnotes{background:#F3F6FF;border-radius:12px;padding:8px 10px;display:flex;flex-direction:column;gap:4px;cursor:text}
+#brewForm .tnotes:focus-within{box-shadow:inset 0 0 0 1.5px var(--accent)}
+#brewForm .tnh{display:flex;align-items:center}
+#brewForm .tnh .nlab{font-size:12.5px;color:var(--muted);margin:0}
+#brewForm .qadd{all:unset;cursor:pointer;margin-left:auto;font-size:12.5px;font-weight:650;color:var(--accent);padding:4px 0 4px 10px}
+#brewForm .tnotes .snotes{font-size:16px;min-height:72px;border:0;resize:none;padding:0;background:none}
+.qchips{display:flex;flex-wrap:wrap;gap:5px}
+.qchips[hidden]{display:none}
+.qchip{all:unset;cursor:pointer;font-size:12.5px;padding:5px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--accent);white-space:nowrap}
+.qchip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.qbar{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;align-items:center;gap:6px;padding:7px 10px;background:var(--shell);border-top:1px solid var(--line)}
+.qbar[hidden]{display:none}
+.qbar .qrow{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
+.qbar .qrow::-webkit-scrollbar{display:none}
+.qbar .qdone{all:unset;cursor:pointer;flex:none;font-size:15px;font-weight:650;color:var(--accent);padding:6px 4px 6px 8px}
+#brewForm .saverow .btn.primary{border-radius:12px;min-height:50px}
+
+/* dark */
+[data-theme="dark"] #brewForm .rsec .lsh{background:#1A2550;color:#AFC0FF}
+[data-theme="dark"] #brewForm .tsec .lsh{background:#211A3A;color:#C2A6FF}
+[data-theme="dark"] #brewForm .bagcard{background:#1C2560;box-shadow:none}
+[data-theme="dark"] #brewForm .bagcard .beanmeta .chip:not(.frozen){color:#1C2560}
+[data-theme="dark"] #brewForm .rgrid .bc.rbox,[data-theme="dark"] #brewForm .tnotes,[data-theme="dark"] #brewForm .gearboard .bc{background:#1A2238}
+[data-theme="dark"] #brewForm .rgrid .nudge button{color:#5D6CB0}
+[data-theme="dark"] #brewForm .rgrid .nudge button:active{color:var(--accent)}
+[data-theme="dark"] #brewForm .along{background:#18213F!important}
+[data-theme="dark"] #brewForm .along .alab,[data-theme="dark"] #brewForm .along .bawhat{color:#C9D4FF}
+[data-theme="dark"] #brewForm .along .bachev{stroke:#C9D4FF}
+[data-theme="dark"] #brewForm .gline .lsi{color:#AEB8D3}
+[data-theme="dark"] #brewForm .gsh{background:#1E2536;color:#AEB8D3}
+[data-theme="dark"] #brewForm .rtrack{background:#232B42}
+[data-theme="dark"] #brewForm .rthumb{background:#121827}
 </style>
 </head>
 <body>
@@ -1518,36 +1647,34 @@ function viewLog(mode, id) {
       <div class="roastguide" id="roastGuide" hidden></div>
     </section>
 
-    <div class="sect"><span>recipe</span></div>
-
-    <div class="board recipe4">
-      <div class="bc"><div class="num"><span class="nlab">coffee</span><span class="val">
-        <input data-k="dose" data-r data-t="num" inputmode="decimal" size="4" value="${v(d.dose)}" placeholder="15" aria-label="Coffee in grams"><i>g</i></span></div></div>
-      <div class="bc"><div class="num"><span class="nlab">water</span><span class="val">
-        <input data-k="waterG" data-r data-t="num" inputmode="decimal" size="4" value="${v(d.waterG)}" placeholder="250" aria-label="Water in grams"><i>g</i></span></div>
-        <div class="ratio off" id="ratioOut" aria-label="Ratio">&mdash;</div></div>
-      <div class="bc"><div class="num"><span class="nlab">grind</span><span class="val">
-        <input data-k="grind" data-r inputmode="decimal" size="4" value="${v(d.grind)}" placeholder="24" aria-label="Grind setting">
-        <span class="nudge"><button type="button" data-step="grind" data-dir="-1" aria-label="Lower grind setting">&minus;</button><button type="button" data-step="grind" data-dir="1" aria-label="Raise grind setting">+</button></span></span>
-        <span class="grindhint" id="grindHint" hidden></span></div></div>
-      <div class="bc"><div class="num"><span class="nlab">temp</span><span class="val">
-        <input data-k="temp" data-r data-t="num" inputmode="decimal" size="4" value="${v(tempDisp(d.tempF))}" placeholder="${unit === "C" ? 94 : 200}" aria-label="Temperature"><i>&deg;${unit}</i>
-        <span class="nudge"><button type="button" data-step="temp" data-dir="-1" aria-label="Lower temperature">&minus;</button><button type="button" data-step="temp" data-dir="1" aria-label="Raise temperature">+</button></span></span></div></div>
-
-      <div class="bc bloom"><div class="num sub"><span class="nlab">bloom water</span><span class="val">
-        <input data-k="bloomG" data-r data-t="num" inputmode="decimal" size="4" value="${v(d.bloomG)}" placeholder="45" aria-label="Bloom water in grams"><i>g</i></span></div></div>
-      <div class="bc bloom"><div class="num sub"><span class="nlab">bloom time</span><span class="val">
-        <input data-k="bloomS" data-r data-t="num" inputmode="numeric" size="4" value="${v(d.bloomS)}" placeholder="40" aria-label="Bloom time in seconds"><i>s</i></span></div></div>
-      <div class="bc"><div class="num"><span class="nlab">brew time</span><span class="val">
-        <input data-k="time" data-r inputmode="numeric" size="4" value="${v(mmss(d.timeS))}" placeholder="3:10" autocomplete="off" aria-label="Brew time"></span></div></div>
-      <div class="bc"><div class="num"><span class="nlab">pours</span><span class="val">
-        <input data-k="pours" data-r data-t="num" inputmode="numeric" size="4" value="${v(d.pours)}" placeholder="3" aria-label="Pours">
-        <span class="nudge"><button type="button" data-step="pours" data-dir="-1" aria-label="Fewer pours">&minus;</button><button type="button" data-step="pours" data-dir="1" aria-label="More pours">+</button></span></span></div></div>
-
-      <div class="bc wide"><label class="txt"><span>method</span><input data-k="method" data-r list="dl-method" value="${v(d.method)}" placeholder="Center pours"></label></div>
-
-      <details class="bc wide along" id="along">
-        <summary><span class="tw"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span><span class="alab">brew along</span></summary>
+    <section class="lsec rsec">
+      <div class="lsh"><svg class="lsi" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4A2 2 0 0 0 19 18l-5-9V3M7.5 14h9"/></svg><span>recipe</span></div>
+      <div class="board rgrid">
+        <div class="bc rc rbig rcof"><div class="num"><span class="nlab">coffee</span><span class="val">
+          <input data-k="dose" data-r data-t="num" inputmode="decimal" size="4" value="${v(d.dose)}" placeholder="15" aria-label="Coffee in grams"><i>g</i></span></div>
+          <div class="rlink" id="ratioLink" aria-hidden="true"><span class="ratio off" id="ratioOut">&mdash;</span><svg viewBox="0 0 40 10"><path d="M2 5H37M32 1l5 4-5 4"/></svg></div></div>
+        <div class="bc rc rbig"><div class="num"><span class="nlab">water</span><span class="val">
+          <input data-k="waterG" data-r data-t="num" inputmode="decimal" size="4" value="${v(d.waterG)}" placeholder="250" aria-label="Water in grams"><i>g</i></span></div></div>
+        <div class="rc rgap" aria-hidden="true"></div>
+        <div class="bc rc rbox"><div class="num"><span class="nlab">grind</span><span class="val">
+          <input data-k="grind" data-r inputmode="decimal" size="4" value="${v(d.grind)}" placeholder="24" aria-label="Grind setting">
+          <span class="nudge"><button type="button" data-step="grind" data-dir="1" aria-label="Raise grind setting">+</button><button type="button" data-step="grind" data-dir="-1" aria-label="Lower grind setting">&minus;</button></span></span>
+          <span class="grindhint" id="grindHint" hidden></span></div></div>
+        <div class="bc rc rbox"><div class="num"><span class="nlab">temp</span><span class="val">
+          <input data-k="temp" data-r data-t="num" inputmode="decimal" size="4" value="${v(tempDisp(d.tempF))}" placeholder="${unit === "C" ? 94 : 200}" aria-label="Temperature"><i>&deg;${unit}</i>
+          <span class="nudge"><button type="button" data-step="temp" data-dir="1" aria-label="Raise temperature">+</button><button type="button" data-step="temp" data-dir="-1" aria-label="Lower temperature">&minus;</button></span></span></div></div>
+        <div class="rc rgap" aria-hidden="true"></div>
+        <div class="bc rc bloom" id="bloomCell"><div class="num"><span class="nlab">bloom</span><span class="val bval">
+          <input data-k="bloomG" data-r data-t="num" inputmode="decimal" size="3" value="${v(d.bloomG)}" placeholder="45" aria-label="Bloom water in grams"><i>g</i><b class="bdot" aria-hidden="true">&middot;</b><input data-k="bloomS" data-r data-t="num" inputmode="numeric" size="3" value="${v(d.bloomS)}" placeholder="40" aria-label="Bloom time in seconds"><i>s</i></span>
+          <button type="button" class="nobloom" id="noBloom" hidden>no bloom</button></div></div>
+        <div class="bc rc"><div class="num"><span class="nlab">pours</span><span class="val">
+          <input data-k="pours" data-r data-t="num" inputmode="numeric" size="3" value="${v(d.pours)}" placeholder="3" aria-label="Pours"></span></div></div>
+        <div class="bc rc"><div class="num"><span class="nlab">brew time</span><span class="val">
+          <input data-k="time" data-r inputmode="numeric" size="4" value="${v(mmss(d.timeS))}" placeholder="3:10" autocomplete="off" aria-label="Brew time"></span></div></div>
+      </div>
+      <label class="rmeth"><span>method</span><input data-k="method" data-r list="dl-method" value="${v(d.method)}" placeholder="Center pours"></label>
+      <details class="along" id="along">
+        <summary class="bachip"><span class="alab">Brew along</span><span class="bawhat" id="baWhat">recipes</span><svg class="bachev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></summary>
         <div class="alongbody">
           <div class="alongpick" id="alongPick">
             <label class="brewrow"><span>brewer</span><select id="brewerPick" aria-label="Brewer"></select><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></label>
@@ -1573,36 +1700,44 @@ function viewLog(mode, id) {
           </div>
         </div>
       </details>
-    </div>
+    </section>
 
-    <div class="sect slim"><span>gear</span></div>
-
-    <div class="board gearboard">
-      <div class="bc"><label class="txt"><span>brewer</span><input data-k="brewer" data-r list="dl-brewer" value="${v(d.brewer)}" placeholder="V60"></label></div>
-      <div class="bc"><label class="txt"><span>filter</span><input data-k="filter" data-r list="dl-filter" value="${v(d.filter)}" placeholder="Cafec Abaca"></label></div>
-      <div class="bc"><label class="txt"><span>grinder</span><input data-k="grinder" data-r list="dl-grinder" value="${v(d.grinder)}" placeholder="Comandante"></label></div>
-      <div class="bc"><label class="txt"><span>water type</span><input data-k="waterType" data-r list="dl-water" value="${v(d.waterType)}" placeholder="Filtered"></label></div>
-    </div>
-
-    <div class="sect under"><span>how it tasted</span></div>
-
-    <div class="board tasteboard">
-      <div class="bc wide">
-        <div class="ratelabel">rating <b id="rateVal" class="${isNum(d.rating) ? "" : "off"}">${isNum(d.rating) ? d.rating : "&ndash;"}</b></div>
-        <div class="rate" id="rate">${Array.from({ length: 10 }, (_, i) => `<button type="button" data-r="${i + 1}" aria-pressed="${d.rating === i + 1}">${i + 1}</button>`).join("")}</div>
-        <div class="rate-ends"><span>undrinkable</span><span>best ever</span></div>
+    <section class="lsec gsec">
+      <div class="lsh gsh" id="gearHead" hidden><svg class="lsi" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></svg><span>gear</span><button type="button" class="gdone" id="gearDone">Done</button></div>
+      <div class="gline" id="gearLine"><svg class="lsi" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></svg><span class="gsum" id="gearSum"></span><button type="button" class="gedit" id="gearEdit" aria-expanded="false" aria-controls="gearBoard">Edit</button></div>
+      <div class="board gearboard" id="gearBoard" hidden>
+        <div class="bc"><label class="txt"><span>brewer</span><input data-k="brewer" data-r list="dl-brewer" value="${v(d.brewer)}" placeholder="V60"></label></div>
+        <div class="bc"><label class="txt"><span>filter</span><input data-k="filter" data-r list="dl-filter" value="${v(d.filter)}" placeholder="Cafec Abaca"></label></div>
+        <div class="bc"><label class="txt"><span>grinder</span><input data-k="grinder" data-r list="dl-grinder" value="${v(d.grinder)}" placeholder="Comandante"></label></div>
+        <div class="bc"><label class="txt"><span>water type</span><input data-k="waterType" data-r list="dl-water" value="${v(d.waterType)}" placeholder="Filtered"></label></div>
       </div>
-      <div class="bc tcomp">
-        <div class="compass" id="compass" tabindex="0" role="application" aria-label="Taste compass. Use arrow keys: left is sour, right is bitter, up is strong, down is weak.">
-          <span class="zone"></span>
-          <span class="ax t">strong</span><span class="ax b">weak</span><span class="ax l">sour</span><span class="ax r">bitter</span>
-          <span class="tapme" id="tapme">tap</span>
-          <div class="dot" id="dot" hidden></div>
+    </section>
+
+    <section class="lsec tsec">
+      <div class="lsh"><svg class="lsi" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM17 10h1.5a2.5 2.5 0 0 1 0 5H17M8 3c0 1.5 1 1.5 1 3M12 3c0 1.5 1 1.5 1 3"/></svg><span>how it tasted</span></div>
+      <div class="trate">
+        <div><span class="nlab">rating</span><button type="button" class="rbignum ${isNum(d.rating) ? "" : "off"}" id="rateVal" aria-label="Clear rating">${isNum(d.rating) ? d.rating : "&ndash;"}<small>/10</small></button></div>
+        <div><div class="rslider" id="rate" role="slider" tabindex="0" aria-label="Rating, 1 to 10" aria-valuemin="1" aria-valuemax="10"${isNum(d.rating) ? ` aria-valuenow="${d.rating}"` : ""}>
+          <div class="rtrack" id="rTrack"><div class="rfill" id="rFill"></div>${Array.from({ length: 10 }, (_, i) => `<span class="rtick" style="left:${i / 9 * 100}%"></span>`).join("")}</div><div class="rthumb" id="rThumb" hidden></div></div>
+          <div class="rate-ends"><span>undrinkable</span><span>best ever</span></div></div>
+      </div>
+      <div class="tpair">
+        <div class="tcomp">
+          <div class="compass" id="compass" tabindex="0" role="application" aria-label="Taste compass. Use arrow keys: left is sour, right is bitter, up is strong, down is weak.">
+            <span class="zone"></span>
+            <span class="ax t">strong</span><span class="ax b">weak</span><span class="ax l">sour</span><span class="ax r">bitter</span>
+            <span class="tapme" id="tapme">tap</span>
+            <div class="dot" id="dot" hidden></div>
+          </div>
+          <div class="tastesaid" id="tasteLabel" aria-live="polite"></div>
         </div>
-        <div class="tastesaid" id="tasteLabel" aria-live="polite"></div>
+        <div class="tnotes">
+          <div class="tnh"><label class="nlab" for="notesIn">tasting notes</label><button type="button" class="qadd" id="qAdd" aria-expanded="false">+ add</button></div>
+          <textarea class="snotes" id="notesIn" data-k="notes" placeholder="stone fruit, tea-like, dry finish">${v(d.notes)}</textarea>
+          <div class="qchips" id="qInline" hidden></div>
+        </div>
       </div>
-      <label class="bc tnotes"><span class="nlab">tasting notes</span><textarea class="snotes" data-k="notes" placeholder="stone fruit, tea-like, dry finish">${v(d.notes)}</textarea></label>
-    </div>
+    </section>
 
     <div class="saverow">
       <button class="btn primary" type="button" id="saveBrew">${editing ? "Save changes" : "Save brew"}</button>
@@ -1617,6 +1752,7 @@ function viewLog(mode, id) {
     const el = $("#ratioOut");
     el.textContent = r ? ratioStr(r) : "\u2014";
     el.classList.toggle("off", !r);
+    $("#ratioLink").hidden = !r;
   };
   // The collapsed band carries what the sheet has scrolled past.
   const updMini = () => {
@@ -1660,6 +1796,8 @@ function viewLog(mode, id) {
   form.addEventListener("input", (e) => {
     if (e.target.dataset.r !== undefined) FORM.dirty = true;
     if (["dose", "waterG"].includes(e.target.dataset.k)) updRatio();
+    if (["brewer", "filter", "grinder", "waterType"].includes(e.target.dataset.k)) paintGear();
+    paintBloom();
     updMini();
   });
   field("date").addEventListener("input", () => { updRoast(); updMini(); });
@@ -1691,7 +1829,7 @@ function viewLog(mode, id) {
       const nd = draftFrom(null, e.target.value);
       ["grinder", "grind", "waterType", "brewer", "filter", "dose", "waterG", "bloomG", "bloomS", "method", "pours"].forEach((k) => (field(k).value = nd[k] ?? ""));
       field("temp").value = tempDisp(nd.tempF) ?? "";
-      updRatio();
+      updRatio(); paintGear(); FORM.bloomOpen = false; paintBloom();
     }
     updRoast();
     updMini();
@@ -1711,16 +1849,77 @@ function viewLog(mode, id) {
     updMini();
   }));
 
-  // rating
-  $("#rate").addEventListener("click", (e) => {
-    const b = e.target.closest("button"); if (!b) return;
-    const r = Number(b.dataset.r);
-    FORM.d.rating = FORM.d.rating === r ? null : r;
-    $$("#rate button").forEach((x) => x.setAttribute("aria-pressed", String(Number(x.dataset.r) === FORM.d.rating)));
+  // rating: tap anywhere on the bar to jump to a number, or drag; whole numbers 1-10
+  const rateEl = $("#rate"), rTrack = $("#rTrack");
+  const paintRate = () => {
+    const r = FORM.d.rating, p = isNum(r) ? (r - 1) / 9 : 0;
+    $("#rFill").style.width = isNum(r) ? p * 100 + "%" : "0";
+    const th = $("#rThumb"); th.hidden = !isNum(r); th.style.left = `calc(12px + (100% - 24px) * ${p})`;
     const rv = $("#rateVal");
-    rv.innerHTML = isNum(FORM.d.rating) ? String(FORM.d.rating) : "&ndash;";
-    rv.classList.toggle("off", !isNum(FORM.d.rating));
+    rv.innerHTML = `${isNum(r) ? r : "&ndash;"}<small>/10</small>`;
+    rv.classList.toggle("off", !isNum(r));
+    if (isNum(r)) rateEl.setAttribute("aria-valuenow", r); else rateEl.removeAttribute("aria-valuenow");
+  };
+  const rateAt = (e) => { const r = rTrack.getBoundingClientRect(); return clamp(Math.round(((e.clientX - r.left) / r.width) * 9) + 1, 1, 10); };
+  const setRate = (r) => { if (FORM.d.rating !== r) { FORM.d.rating = r; FORM.dirty = true; paintRate(); } };
+  rateEl.addEventListener("pointerdown", (e) => { rateEl.setPointerCapture(e.pointerId); setRate(rateAt(e)); });
+  rateEl.addEventListener("pointermove", (e) => { if (rateEl.hasPointerCapture(e.pointerId)) setRate(rateAt(e)); });
+  rateEl.addEventListener("keydown", (e) => {
+    const d = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 }[e.key]; if (!d) return;
+    e.preventDefault(); setRate(clamp((FORM.d.rating || (d > 0 ? 0 : 2)) + d, 1, 10));
   });
+  $("#rateVal").addEventListener("click", () => { if (isNum(FORM.d.rating)) { FORM.d.rating = null; FORM.dirty = true; paintRate(); } });
+  paintRate();
+
+  // gear: one line until you want to change it
+  const paintGear = () => {
+    const bits = ["brewer", "filter", "grinder", "waterType"].map((k) => field(k).value.trim()).filter(Boolean);
+    $("#gearSum").textContent = bits.length ? bits.join("\u2009\u00b7\u2009") : "Add your gear";
+    $("#gearSum").classList.toggle("off", !bits.length);
+    // Shrink the line a little before it has to cut anything off.
+    const g = $("#gearSum"); g.style.fontSize = "";
+    requestAnimationFrame(() => { let f = 14; while (g.scrollWidth > g.clientWidth && f > 12) { f -= 0.5; g.style.fontSize = f + "px"; } });
+  };
+  const gearOpen = (open) => {
+    $("#gearBoard").hidden = !open; $("#gearHead").hidden = !open; $("#gearLine").hidden = open;
+    $("#gearEdit").setAttribute("aria-expanded", String(open));
+    if (open) field("brewer").focus({ preventScroll: true }); else { paintGear(); $("#gearEdit").focus({ preventScroll: true }); }
+  };
+  $("#gearEdit").addEventListener("click", () => gearOpen(true));
+  $("#gearDone").addEventListener("click", () => gearOpen(false));
+  paintGear();
+
+  // tasting notes: quick-add chips, inline behind "+ add" and above the keyboard while typing
+  const notesIn = field("notes");
+  const terms = () => notesIn.value.split(",").map((x) => x.trim()).filter(Boolean);
+  const chipsHtml = () => TASTE_CHIPS.map((q) => `<button type="button" class="qchip${terms().some((t) => t.toLowerCase() === q) ? " on" : ""}" data-q="${q}">${q}</button>`).join("");
+  const paintChips = () => { $("#qInline").innerHTML = chipsHtml(); const bar = $("#qBar .qrow"); if (bar) bar.innerHTML = chipsHtml(); };
+  const toggleTerm = (q) => {
+    const t = terms(), i = t.findIndex((x) => x.toLowerCase() === q);
+    if (i >= 0) t.splice(i, 1); else t.push(q);
+    notesIn.value = t.join(", "); FORM.dirty = true; paintChips();
+  };
+  $("#qInline").addEventListener("click", (e) => { const c = e.target.closest("[data-q]"); if (c) toggleTerm(c.dataset.q); });
+  $("#qAdd").addEventListener("click", () => {
+    const box = $("#qInline"); box.hidden = !box.hidden;
+    $("#qAdd").textContent = box.hidden ? "+ add" : "hide"; $("#qAdd").setAttribute("aria-expanded", String(!box.hidden));
+    paintChips();
+  });
+  notesIn.addEventListener("input", paintChips);
+  notesIn.addEventListener("focus", () => { $("#qInline").hidden = true; $("#qAdd").textContent = "+ add"; qBarShow(true, toggleTerm, paintChips); });
+  notesIn.addEventListener("blur", () => qBarShow(false));
+  paintChips();
+
+  // bloom: a recipe without one shows "no bloom" instead of two empty fields
+  FORM.bloomOpen = false;
+  const paintBloom = () => {
+    const empty = !field("bloomG").value.trim() && !field("bloomS").value.trim();
+    const hide = empty && !FORM.bloomOpen && document.activeElement?.closest?.("#bloomCell") == null;
+    $("#bloomCell .bval").hidden = hide; $("#noBloom").hidden = !hide;
+  };
+  $("#noBloom").addEventListener("click", () => { FORM.bloomOpen = true; paintBloom(); field("bloomG").focus(); });
+  FORM.paintBloom = paintBloom;
+  paintBloom();
 
   bindCompass();
 
@@ -1801,6 +2000,31 @@ let AL = { recipe: null, brewer: null, base: null, touched: new Set(), filling: 
 const STEP_COLORS = ["#2B4EEA", "#12A594", "#8A4FE8", "#C2568F", "#1E88C8", "#5B6B8C"];
 const stepColor = (i, n) => (i === n - 1 ? "#E8912A" : STEP_COLORS[i % (STEP_COLORS.length - 1)]);
 
+const TASTE_CHIPS = ["fruity", "floral", "sweet", "chocolate", "nutty", "bright", "juicy", "tea-like", "dry finish"];
+/* A row of quick-add chips that rides just above the iPhone keyboard while notes are being typed. */
+function qBarShow(on, onPick, onPaint) {
+  let bar = $("#qBar");
+  if (!bar) {
+    bar = document.createElement("div"); bar.id = "qBar"; bar.className = "qbar"; bar.hidden = true;
+    bar.innerHTML = `<div class="qrow"></div><button type="button" class="qdone">Done</button>`;
+    document.body.appendChild(bar);
+    // Keep focus in the notes while tapping chips, so the keyboard stays up.
+    bar.addEventListener("pointerdown", (e) => e.preventDefault());
+    bar.addEventListener("click", (e) => {
+      const c = e.target.closest("[data-q]"); if (c && bar._pick) { bar._pick(c.dataset.q); return; }
+      if (e.target.closest(".qdone")) document.activeElement?.blur();
+    });
+    const place = () => {
+      const vv = window.visualViewport; if (!vv || bar.hidden) return;
+      bar.style.bottom = Math.max(0, window.innerHeight - (vv.height + vv.offsetTop)) + "px";
+    };
+    window.visualViewport?.addEventListener("resize", place);
+    window.visualViewport?.addEventListener("scroll", place);
+    bar._place = place;
+  }
+  if (on) { bar._pick = onPick; bar.hidden = false; onPaint?.(); bar._place(); setTimeout(bar._place, 300); }
+  else setTimeout(() => { if (!document.activeElement?.matches?.('[data-k="notes"]')) bar.hidden = true; }, 0);
+}
 function markEmpty(el) {
   const cell = el.closest(".bc"); if (!cell) return;
   const filled = [...cell.querySelectorAll("input,textarea")].some((i) => i.value.trim() !== "");
@@ -1900,6 +2124,7 @@ function alongPaint() {
         <span class="rxby">${r.mine ? "Your recipe" : esc(r.by || "")}</span><span class="rxsp">${spec(r)}</span></button>`).join("")
     : `<div class="alongempty">No recipes for ${esc(AL.brewer)} yet. Add one in Recipes.</div>`;
   const r = AL.recipe;
+  const bw = $("#baWhat"); if (bw) bw.textContent = r ? r.name : `${AL.brewer} recipes`;
   $("#alongPick").hidden = !!r; $("#alongChosen").hidden = !r; $("#alongRun").hidden = !r;
   const gh = $("#grindHint");
   if (gh) { gh.hidden = !(r && r.grind); gh.textContent = r && r.grind ? `recipe: ${String(r.grind).toLowerCase()}` : ""; }
@@ -2039,6 +2264,7 @@ function alongFill(full) {
     set("method", r.by && r.by !== "yours" ? `${r.name} (${r.by})` : r.name);
   }
   FORM.dirty = true;
+  if (full && FORM) FORM.bloomOpen = false;
   AL.filling = true;
   $('[data-k="dose"]').dispatchEvent(new Event("input", { bubbles: true }));
   AL.filling = false;
