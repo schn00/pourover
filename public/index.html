@@ -1138,6 +1138,150 @@ body[data-view="log"]{--sheet:#EDF1F5;--accent:#2563EB;--accent-soft:#DBEAFE;--a
 
 [data-theme="dark"] #brewForm .bagcard::after{border-color:rgba(255,255,255,.5)}
 
+
+/* settings toggles: the selected option stays readable in both themes */
+.setrow .seg button[aria-pressed="true"],.sheet .seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+[data-theme="dark"] .setrow .seg button,[data-theme="dark"] .sheet .seg button{background:#0D1120;color:#C9D2E8}
+[data-theme="dark"] .setrow .seg button[aria-pressed="true"],[data-theme="dark"] .sheet .seg button[aria-pressed="true"]{background:#60A5FA;color:#04070D}
+
+/* ===== sleek theme across the other tabs ===== */
+body:not([data-view="log"]){--sheet:#EDF1F5;--accent:#2563EB;--accent-soft:#DBEAFE;--accent-text:#1D4ED8}
+[data-theme="dark"] body:not([data-view="log"]){--sheet:#04070D;--accent:#60A5FA;--accent-soft:#172554;--accent-text:#93C5FD}
+body:not([data-view="log"]) main{--card:#fff;--cardline:transparent;--cardsh:0 1px 2px rgba(15,23,42,.06);--soft:#F1F5F9;--label:#64748B}
+[data-theme="dark"] body:not([data-view="log"]) main{--card:#070A11;--cardline:#1A2333;--cardsh:none;--soft:#162033;--label:#94A3B8}
+
+/* section labels: quiet text instead of colored bands */
+body:not([data-view="log"]) .sect,body:not([data-view="log"]) .sect.under,body:not([data-view="log"]) .sect.flat{background:none!important;border:0!important;margin:20px 2px 8px!important;padding:0!important;color:var(--label)!important;font-size:12.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+body:not([data-view="log"]) .sect::after{display:none!important}
+
+/* controls row (brewer/scale, factor/bag) becomes a white rounded bar */
+body:not([data-view="log"]) .selline,body:not([data-view="log"]) .fh:not(.factor .fh){background:var(--card)!important;border:1px solid var(--cardline)!important;box-shadow:var(--cardsh);border-radius:12px!important;margin:10px 0!important;padding:10px 14px!important;color:var(--ink)!important}
+body:not([data-view="log"]) .selline::after{display:none!important}
+body:not([data-view="log"]) .selpair{background:var(--card);border:1px solid var(--cardline);box-shadow:var(--cardsh);border-radius:12px;padding:10px 14px;margin:10px 0}
+body:not([data-view="log"]) .selpair .selline{background:none!important;border:0!important;box-shadow:none;margin:0!important;padding:0!important}
+body:not([data-view="log"]) .selline>span{color:var(--label);font-weight:600}
+body:not([data-view="log"]) .selline select,body:not([data-view="log"]) .selline input{color:var(--accent);font-weight:600;font-size:16px}
+
+/* cards */
+body:not([data-view="log"]) .item,body:not([data-view="log"]) .factor{background:var(--card)!important;border:1px solid var(--cardline)!important;box-shadow:var(--cardsh);border-radius:12px!important;padding:14px 16px!important;margin-bottom:12px!important;border-left-width:1px!important}
+body:not([data-view="log"]) .item::before{display:none!important}
+body:not([data-view="log"]) .item>*{padding-left:0!important}
+body:not([data-view="log"]) .item+.item{border-top:1px solid var(--cardline)}
+body:not([data-view="log"]) .item .iname{font-size:19px;font-weight:700;letter-spacing:-.01em}
+body:not([data-view="log"]) .rxspecs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px!important;background:none!important;border:0!important;margin:10px 0!important}
+body:not([data-view="log"]) .rxspecs>span{background:var(--soft)!important;border-radius:9px;padding:6px 9px!important}
+body:not([data-view="log"]) .rxspecs i{color:var(--label)!important}
+body:not([data-view="log"]) .pours .prow{border-top:1px solid var(--cardline)}
+
+/* the bag you're on: same fade + inner line as the log page */
+body[data-view="bags"] .item.recent{position:relative;overflow:hidden;background:linear-gradient(135deg,#0F172A,#1E3A8A)!important;color:#fff;border-color:transparent!important;box-shadow:0 4px 14px rgba(30,58,138,.2);
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 24px),calc(100% - 24px) 100%,0 100%)}
+body[data-view="bags"] .item.recent::after{content:"";position:absolute;inset:3px;border:1px solid rgba(255,255,255,.32);border-radius:10px;pointer-events:none;
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 22px),calc(100% - 22px) 100%,0 100%)}
+[data-theme="dark"] body[data-view="bags"] .item.recent{background:linear-gradient(135deg,#0B1222,#1E3A8A)!important}
+[data-theme="dark"] body[data-view="bags"] .item.recent::after{border-color:rgba(255,255,255,.5)}
+body[data-view="bags"] .item:not(.recent) .chip{background:var(--accent-soft);color:var(--accent-text)}
+body[data-view="bags"] .item.recent .chip:not(.frozen){background:#fff;color:#1E3A8A}
+
+/* history: one grouped card, rating badges in the tasting amber */
+body[data-view="history"] .hfilt{background:var(--card);border:1px solid var(--cardline);box-shadow:var(--cardsh);border-radius:12px;padding:6px 10px;margin:4px 0 12px}
+body[data-view="history"] .hlist{background:var(--card);border:1px solid var(--cardline);box-shadow:var(--cardsh);border-radius:12px;overflow:hidden}
+body[data-view="history"] .hrow{background:none!important;border-top:1px solid var(--cardline)!important;padding:11px 14px!important}
+body[data-view="history"] .hrow:first-child{border-top:0!important}
+[data-theme="light"] body[data-view="history"] .hrow{border-top-color:#EEF1F5!important}
+body[data-view="history"] .hrate{width:30px!important;height:30px;border-radius:9px;display:grid;place-items:center;text-align:center!important;font-size:15px!important;font-weight:650!important;background:var(--soft);color:var(--ink)!important}
+body[data-view="history"] .hrate.hi{background:#FEF3C7;color:#B45309!important}
+body[data-view="history"] .hrate.lo,body[data-view="history"] .hrate.none{color:var(--label)!important}
+[data-theme="dark"] body[data-view="history"] .hrate.hi{background:#3A2A0B;color:#FBBF24!important}
+
+/* insights */
+body[data-view="insights"] .metrics{background:var(--card)!important;border:1px solid var(--cardline)!important;box-shadow:var(--cardsh);border-radius:12px!important;gap:0!important;padding:4px!important}
+body[data-view="insights"] .metrics .num{background:none!important;padding:8px 10px!important}
+body[data-view="insights"] .metrics .num+.num{border-left:1px solid var(--cardline)}
+[data-theme="light"] body[data-view="insights"] .metrics .num+.num{border-left-color:#EEF1F5}
+body[data-view="insights"] .metrics .nlab,body[data-view="insights"] .metrics .stat i{color:var(--label)!important}
+body[data-view="insights"] .metrics .stat{color:var(--ink)!important}
+body[data-view="insights"] .factor .fh span{background:var(--accent-soft);color:var(--accent-text);padding:2px 8px;border-radius:999px}
+body[data-view="insights"] .bar{height:5px;border-radius:3px;background:var(--soft)!important}
+body[data-view="insights"] .bar i,body[data-view="insights"] .bar>span{border-radius:3px;background:var(--accent)!important}
+
+/* buttons */
+body:not([data-view="log"]) .btn.primary{background:linear-gradient(135deg,#0F172A,#1E3A8A);border-color:transparent;color:#fff;border-radius:12px}
+[data-theme="dark"] body:not([data-view="log"]) .btn.primary{background:linear-gradient(135deg,#1E3A8A,#2563EB)}
+
+/* more visible card lines everywhere */
+#brewForm .lsec{border-color:#D5DCE6!important}
+body:not([data-view="log"]) main{--cardline:#D5DCE6}
+[data-theme="dark"] #brewForm .lsec{border-color:#26324A!important}
+[data-theme="dark"] body:not([data-view="log"]) main{--cardline:#26324A}
+[data-theme="light"] body[data-view="history"] .hrow{border-top-color:#E7EBF1!important}
+[data-theme="light"] body[data-view="insights"] .metrics .num+.num{border-left-color:#E7EBF1}
+
+/* saved bags you aren't brewing: plain card with the bean-card navy down the left edge */
+body[data-view="bags"] .item:not(.recent){box-shadow:inset 5px 0 0 0 #1E3A8A,var(--cardsh)!important}
+[data-theme="dark"] body[data-view="bags"] .item:not(.recent){box-shadow:inset 5px 0 0 0 #2B4BB8!important}
+body[data-view="bags"] .item:not(.recent)>*{padding-left:4px!important}
+[data-theme="dark"] body[data-view="bags"] .item:not(.recent) .chip:not(.frozen){background:#172554;color:#93C5FD}
+
+/* brew page facts: give values room so words don't break mid-word */
+body[data-view="brew"] dl.facts dd{overflow-wrap:normal;word-break:normal;hyphens:none}
+body[data-view="brew"] dl.facts{column-gap:12px}
+body[data-view="brew"] dl.facts dt{width:58px}
+body[data-view="brew"] dl.facts dd{font-size:14.5px}
+.rate1{--rb:#E2E8F0;--rf:#475569}
+[data-theme="dark"] .rate1{--rb:#162033;--rf:#94A3B8}
+.rate2{--rb:#E5E3D9;--rf:#49515D}
+[data-theme="dark"] .rate2{--rb:#1C222E;--rf:#9FA6A8}
+.rate3{--rb:#E8DFC3;--rf:#4B4D52}
+[data-theme="dark"] .rate3{--rb:#222429;--rf:#ABA997}
+.rate4{--rb:#EADAAC;--rf:#4D4946}
+[data-theme="dark"] .rate4{--rb:#272524;--rf:#B6AC87}
+.rate5{--rb:#EDD695;--rf:#4F453A}
+[data-theme="dark"] .rate5{--rb:#2D271F;--rf:#C2AF76}
+.rate6{--rb:#F0D17F;--rf:#52422F}
+[data-theme="dark"] .rate6{--rb:#33291A;--rf:#CDB366}
+.rate7{--rb:#F3CD68;--rf:#543E23}
+[data-theme="dark"] .rate7{--rb:#392B15;--rf:#D9B655}
+.rate8{--rb:#F5C851;--rf:#563A17}
+[data-theme="dark"] .rate8{--rb:#3E2C10;--rf:#E4B945}
+.rate9{--rb:#F8C43B;--rf:#58360C}
+[data-theme="dark"] .rate9{--rb:#442E0B;--rf:#F0BC34}
+.rate10{--rb:#FBBF24;--rf:#5A3200}
+[data-theme="dark"] .rate10{--rb:#4A3006;--rf:#FBBF24}
+/* rating badges: slate warming to amber, one shade per score */
+body[data-view="history"] .hrate[class*="rate"]{background:var(--rb)!important;color:var(--rf)!important}
+
+/* brew detail: bean card on top, then cards for next time, notes and recipe */
+body[data-view="brew"] main>.srow:first-child{position:relative;overflow:hidden;background:linear-gradient(135deg,#0F172A,#1E3A8A);color:#fff;border-radius:12px;padding:14px 16px;margin-top:4px;
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 24px),calc(100% - 24px) 100%,0 100%);box-shadow:0 4px 14px rgba(30,58,138,.2)}
+body[data-view="brew"] main>.srow:first-child::after{content:"";position:absolute;inset:3px;border:1px solid rgba(255,255,255,.32);border-radius:10px;pointer-events:none;
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 22px),calc(100% - 22px) 100%,0 100%)}
+[data-theme="dark"] body[data-view="brew"] main>.srow:first-child{background:linear-gradient(135deg,#0B1222,#1E3A8A)}
+[data-theme="dark"] body[data-view="brew"] main>.srow:first-child::after{border-color:rgba(255,255,255,.5)}
+body[data-view="brew"] main>.srow:first-child .iname{color:#fff}
+body[data-view="brew"] main>.srow:first-child .beanline,body[data-view="brew"] main>.srow:first-child .beanmeta span:not(.chip){color:#BFCBF5}
+body[data-view="brew"] main>.srow:first-child .chip:not(.frozen){background:#fff;color:#1E3A8A}
+body[data-view="brew"] main>.srow:first-child .beannotes{color:#fff;border-left-color:#F0A94A}
+body[data-view="brew"] main>.srow:first-child .score{align-items:center}
+body[data-view="brew"] .score b[class*="rate"]{display:grid;place-items:center;min-width:52px;height:52px;padding:0 8px;border-radius:14px;background:var(--rb);color:var(--rf);font-size:30px;box-sizing:border-box}
+body[data-view="brew"] main>.srow:first-child .score small{color:#BFCBF5}
+body[data-view="brew"] main>.srow:first-child .score .said{color:#fff;font-weight:600}
+body[data-view="brew"] .sect,body[data-view="brew"] .sect.under,body[data-view="brew"] .sect.flat{display:flex!important;align-items:center;gap:8px;background:var(--card)!important;border:1px solid var(--cardline)!important;border-bottom:0!important;
+  border-radius:12px 12px 0 0;margin:14px 0 0!important;padding:10px 14px 4px!important;text-transform:none!important;letter-spacing:.02em!important;font-size:13px!important;color:var(--ink)!important}
+body[data-view="brew"] .sect::before{content:"";width:22px;height:22px;border-radius:6px;flex:none;background:var(--ib) center/14px no-repeat,var(--ibg);background-image:var(--ic)}
+body[data-view="brew"] .sect.snext{--ibg:#FEF3C7;--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23D97706' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z'/%3E%3C/svg%3E")}
+body[data-view="brew"] .sect.sknow{--ibg:#F1F5F9;--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 11v5M12 8h.01'/%3E%3C/svg%3E")}
+body[data-view="brew"] .sect.srx{--ibg:#DBEAFE;--ic:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232563EB' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4A2 2 0 0 0 19 18l-5-9V3M7.5 14h9'/%3E%3C/svg%3E")}
+[data-theme="dark"] body[data-view="brew"] .sect.snext{--ibg:#3A2A0B}
+[data-theme="dark"] body[data-view="brew"] .sect.sknow{--ibg:#1E293B}
+[data-theme="dark"] body[data-view="brew"] .sect.srx{--ibg:#172554}
+body[data-view="brew"] .sect .diag{margin-left:auto}
+body[data-view="brew"] .sect .chev{margin-left:auto}
+body[data-view="brew"] .sect+.srow,body[data-view="brew"] details.rx .srow{background:var(--card);border:1px solid var(--cardline);border-top:0;border-radius:0 0 12px 12px;padding:8px 14px 14px;margin:0}
+body[data-view="brew"] details.rx:not([open]) .sect{border-radius:12px;border-bottom:1px solid var(--cardline)!important;padding-bottom:10px!important}
+body[data-view="brew"] details.rx{margin-top:0}
+body[data-view="brew"] dl.facts dt{color:var(--label)}
+body[data-view="brew"] .acts .btn,body[data-view="brew"] .btn{border-radius:12px}
 </style>
 </head>
 <body>
@@ -2724,7 +2868,7 @@ function viewBrew(id) {
       </span>` : ""}</div>` : ""}
       ${bag?.notes ? `<div class="beannotes">${esc(bag.notes)}</div>` : ""}
       <div class="score" style="margin-top:12px">
-        <b class="${isNum(b.rating) ? "" : "off"}">${isNum(b.rating) ? b.rating : "&ndash;"}</b><small>/10</small>
+        <b class="${isNum(b.rating) ? "rate" + Math.round(b.rating) : "off"}">${isNum(b.rating) ? b.rating : "&ndash;"}</b><small>/10</small>
         <span class="said">${esc(tasteText(b.taste) || "no taste placed")}</span>
       </div>
     </div>
@@ -2846,7 +2990,7 @@ function viewHistory() {
       const head = historyBag === "all" ? bagName(S.records[b.bagId]) : (tasteText(b.taste) || "no taste placed");
       const sub = [historyBag === "all" ? tasteText(b.taste) : "", bits].filter(Boolean).join(" \u2014 ") || "no recipe details";
       return `<button type="button" class="hrow" data-go="brew/${b.id}">
-        <span class="hrate ${cls}">${isNum(b.rating) ? b.rating : "&ndash;"}</span>
+        <span class="hrate ${cls}${isNum(b.rating) ? " rate" + Math.round(b.rating) : ""}">${isNum(b.rating) ? b.rating : "&ndash;"}</span>
         <span class="hbody"><span class="h1">${esc(head)}</span><span class="h2">${esc(sub)}</span></span>
         <span class="hdate">${fmtDate(b.date)}</span></button>`;
     }).join("") : `<p class="muted hnone">No brews in this month.</p>`}</div>`;
